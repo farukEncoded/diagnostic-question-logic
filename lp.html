@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bizgrowww | Enterprise Profit Leak Engine</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Chosen Palette: Dark Financial Terminal -->
+    <!-- Background: Slate 950 (#020617) -->
+    <!-- Text: Slate 200 (#e2e8f0) -->
+    <!-- Primary/CTA: Neon Green (#22c55e) -->
+    <!-- Danger/Alert: Neon Red (#ef4444) -->
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            colors: {
+              slate: {
+                850: "#151e32",
+                900: "#0f172a",
+                950: "#020617",
+              },
+              neon: {
+                green: "#22c55e",
+                red: "#ef4444",
+                blue: "#3b82f6",
+              },
+            },
+            backgroundImage: {
+              "grid-pattern":
+                "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+            },
+            animation: {
+              "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              cursor: "cursor .75s step-end infinite",
+            },
+            keyframes: {
+              cursor: {
+                "0%, 100%": { opacity: "1" },
+                "50%": { opacity: "0" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      body {
+        background-color: #020617;
+        color: #e2e8f0;
+      }
+
+      .glass-panel {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .glow-text {
+        text-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+      }
+
+      .glow-red {
+        text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+      }
+
+      .grid-bg {
+        background-size: 40px 40px;
+        mask-image: linear-gradient(to bottom, transparent, 10%, black, 90%, transparent);
+      }
+
+      /* Checkmark Styling via CSS Shapes (No SVG) */
+      .check-icon {
+        display: inline-block;
+        width: 18px;
+        height: 10px;
+        border-bottom: 3px solid #22c55e;
+        border-left: 3px solid #22c55e;
+        transform: rotate(-45deg);
+      }
+
+      .cross-icon {
+        position: relative;
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+      }
+      .cross-icon::before,
+      .cross-icon::after {
+        position: absolute;
+        content: "";
+        width: 100%;
+        height: 2px;
+        background-color: #ef4444;
+        top: 50%;
+        left: 0;
+      }
+      .cross-icon::before {
+        transform: rotate(45deg);
+      }
+      .cross-icon::after {
+        transform: rotate(-45deg);
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #020617;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+    </style>
+
+    <!-- Application Structure Plan:
+         1. Hero Section: High-stakes headline ("Get a ₹50k audit for ₹0"). Terminal aesthetic to sell the "AI/Tech" angle.
+         2. The Problem (Agitation): "The 3 Silent Killers". Focus on invisible losses (Retargeting, Friction, Admin).
+         3. The Solution (Mechanism): "Forensic Analysis". Explain the 3 Layers (Accountant, Architect, Strategist).
+         4. Comparison: Table showing Old Way (Consultants) vs New Way (AI Engine).
+         5. The Deliverable: Visual preview of the Dashboard to build desire.
+         6. Footer CTA: Final FOMO push ("Access Restricted").
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Terminal Typing Effect -> Goal: Authority/Tech -> Method: JS Interval -> Justification: Establishes the "Engine" persona immediately.
+         2. Comparison Table -> Goal: Compare -> Method: HTML Grid -> Justification: Logically proves the value proposition (Speed + Cost).
+         3. Glassmorphism Cards -> Goal: Inform -> Method: CSS Backdrop Filter -> Justification: Premium SaaS aesthetic.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+  </head>
+  <body class="antialiased selection:bg-neon-green selection:text-slate-950">
+    <!-- Background Grid -->
+    <div class="fixed inset-0 grid-bg bg-grid-pattern opacity-20 pointer-events-none z-0"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
+      <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-2 h-8 bg-neon-green"></div>
+          <span class="font-mono font-bold text-xl tracking-tighter text-white"
+            >BIZGROWWW<span class="text-neon-green">_</span>ENGINE</span
+          >
+        </div>
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+          <span>v3.0.1 STABLE</span>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-neon-green animate-pulse"></span>
+            <span class="text-neon-green">SYSTEM ONLINE</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="relative z-10 pt-32 pb-20">
+      <!-- 1. HERO SECTION -->
+      <section class="max-w-5xl mx-auto px-6 text-center mb-32">
+        <!-- Terminal Header -->
+        <div
+          class="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-neon-red/30 bg-neon-red/5 mb-8"
+        >
+          <span class="text-neon-red font-mono text-xs font-bold tracking-widest uppercase"
+            >⚠️ Access Restricted: Retainer Clients Only</span
+          >
+        </div>
+
+        <!-- Headline -->
+        <h1 class="text-5xl md:text-7xl font-black tracking-tight text-white mb-8 leading-[1.1]">
+          Get a
+          <span
+            class="text-transparent bg-clip-text bg-gradient-to-r from-neon-green to-emerald-400 glow-text"
+            >₹50,000 Business Audit.</span
+          ><br />
+          For <span class="text-white border-b-4 border-neon-green">₹0</span>.
+        </h1>
+
+        <!-- Subhead with Typing Effect -->
+        <div class="h-24 md:h-16 mb-10 max-w-3xl mx-auto">
+          <p
+            id="typing-text"
+            class="text-lg md:text-xl text-slate-400 font-mono leading-relaxed"
+          ></p>
+          <span class="animate-cursor text-neon-green text-xl">|</span>
+        </div>
+
+        <!-- Primary CTA -->
+        <div class="flex flex-col md:flex-row items-center justify-center gap-6">
+          <button
+            onclick="window.location.href = 'profit_leak_diagnostic.html'"
+            class="group relative px-8 py-5 bg-neon-green hover:bg-emerald-400 text-slate-950 text-lg font-bold rounded-xl transition-all shadow-[0_0_40px_rgba(34,197,94,0.3)] hover:shadow-[0_0_60px_rgba(34,197,94,0.5)] transform hover:-translate-y-1"
+          >
+            <span class="relative z-10 flex items-center gap-3">
+              INITIALIZE DIAGNOSTIC ENGINE
+              <span class="text-xl leading-none">&rarr;</span>
+            </span>
+          </button>
+          <span class="text-slate-500 text-sm font-mono">
+            Analysis Time: &lt; 120 Seconds<br />
+            Cost: ₹0.00
+          </span>
+        </div>
+      </section>
+
+      <!-- 2. THE REALITY CHECK (Agitation) -->
+      <section class="max-w-6xl mx-auto px-6 mb-32">
+        <div class="grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+              "Hard Work" Won't Fix a <br />
+              <span class="text-neon-red glow-red">Leaky Bucket.</span>
+            </h2>
+            <p class="text-slate-400 text-lg mb-6 leading-relaxed">
+              You think you need "more leads." You are wrong. Pouring more water into a bucket full
+              of holes doesn't fix the problem—it just wets the floor.
+            </p>
+            <p class="text-slate-300 font-medium mb-8">
+              Right now, your unoptimized systems are triggering 3 Silent Killers:
+            </p>
+
+            <ul class="space-y-6">
+              <li class="flex items-start gap-4">
+                <div
+                  class="mt-1 w-8 h-8 rounded bg-slate-800 flex items-center justify-center text-neon-red font-bold text-lg"
+                >
+                  1
+                </div>
+                <div>
+                  <h3 class="text-white font-bold text-lg">The "Invisible" Customer</h3>
+                  <p class="text-slate-500 text-sm">
+                    96% of visitors leave without buying. If you aren't retargeting, you are
+                    donating them to competitors.
+                  </p>
+                </div>
+              </li>
+              <li class="flex items-start gap-4">
+                <div
+                  class="mt-1 w-8 h-8 rounded bg-slate-800 flex items-center justify-center text-neon-red font-bold text-lg"
+                >
+                  2
+                </div>
+                <div>
+                  <h3 class="text-white font-bold text-lg">The "Friction" Tax</h3>
+                  <p class="text-slate-500 text-sm">
+                    A slow mobile site or confusing landing page repels high-ticket clients
+                    instantly.
+                  </p>
+                </div>
+              </li>
+              <li class="flex items-start gap-4">
+                <div
+                  class="mt-1 w-8 h-8 rounded bg-slate-800 flex items-center justify-center text-neon-red font-bold text-lg"
+                >
+                  3
+                </div>
+                <div>
+                  <h3 class="text-white font-bold text-lg">The "Manual" Grind</h3>
+                  <p class="text-slate-500 text-sm">
+                    If your team is manually copying data, you are burning payroll cash on robot
+                    work.
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Visual Representation of Leak -->
+          <div
+            class="glass-panel p-8 rounded-2xl border-t border-neon-red/20 relative overflow-hidden"
+          >
+            <div class="absolute top-0 right-0 p-4 opacity-50">
+              <div class="font-mono text-xs text-neon-red">SYSTEM_ALERT: CRITICAL</div>
+            </div>
+
+            <!-- Code Block Simulation -->
+            <div class="font-mono text-sm space-y-2">
+              <div class="flex justify-between text-slate-400 border-b border-slate-700 pb-2 mb-4">
+                <span>METRIC</span>
+                <span>STATUS</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-white">Monthly Traffic</span>
+                <span class="text-neon-blue">1,000</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-white">Bounce Rate</span>
+                <span class="text-neon-red">96% (CRITICAL)</span>
+              </div>
+              <div class="flex justify-between opacity-50">
+                <span>Retargeting</span>
+                <span>OFFLINE</span>
+              </div>
+              <div class="h-px bg-slate-700 my-4"></div>
+              <div class="flex justify-between items-center">
+                <span class="text-white font-bold">ESTIMATED LOSS</span>
+                <span class="text-neon-red font-bold text-xl glow-red">₹18,50,000 / YR</span>
+              </div>
+            </div>
+
+            <div
+              class="mt-6 bg-neon-red/10 border border-neon-red/30 rounded p-4 text-xs text-neon-red font-mono"
+            >
+              &gt; WARNING: Revenue leakage exceeds 30% of turnover.<br />
+              &gt; IMMEDIATE ACTION REQUIRED.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. THE SOLUTION (The Engine) -->
+      <section class="border-y border-white/5 bg-slate-900/50 py-24">
+        <div class="max-w-6xl mx-auto px-6">
+          <div class="text-center mb-16">
+            <h2 class="text-sm font-mono text-neon-green font-bold tracking-widest uppercase mb-4">
+              The Solution
+            </h2>
+            <h3 class="text-3xl md:text-5xl font-bold text-white mb-6">
+              Enterprise-Grade Intelligence. <br />Digitized.
+            </h3>
+            <p class="text-slate-400 max-w-2xl mx-auto text-lg">
+              We didn't just write a quiz. We digitized our senior strategists. The Profit Leak
+              Engine™ runs your answers through a 3-layer analysis matrix usually reserved for
+              Fortune 500 audits.
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-8">
+            <!-- Layer 1 -->
+            <div class="glass-panel p-8 rounded-2xl hover:bg-slate-800 transition-colors group">
+              <div
+                class="w-12 h-12 rounded bg-slate-900 border border-slate-700 flex items-center justify-center mb-6 group-hover:border-neon-green transition-colors"
+              >
+                <span class="text-2xl">📊</span>
+              </div>
+              <h4 class="text-white font-bold text-xl mb-3">Layer 1: The Forensic Accountant</h4>
+              <p class="text-slate-400 text-sm leading-relaxed">
+                Calculates the exact currency value of your inefficiencies based on your revenue,
+                deal size, and team hours.
+              </p>
+            </div>
+
+            <!-- Layer 2 -->
+            <div class="glass-panel p-8 rounded-2xl hover:bg-slate-800 transition-colors group">
+              <div
+                class="w-12 h-12 rounded bg-slate-900 border border-slate-700 flex items-center justify-center mb-6 group-hover:border-neon-green transition-colors"
+              >
+                <span class="text-2xl">📐</span>
+              </div>
+              <h4 class="text-white font-bold text-xl mb-3">Layer 2: The Growth Architect</h4>
+              <p class="text-slate-400 text-sm leading-relaxed">
+                Benchmarks your conversion rates against the top 1% of the Manufacturing & Service
+                industries.
+              </p>
+            </div>
+
+            <!-- Layer 3 -->
+            <div class="glass-panel p-8 rounded-2xl hover:bg-slate-800 transition-colors group">
+              <div
+                class="w-12 h-12 rounded bg-slate-900 border border-slate-700 flex items-center justify-center mb-6 group-hover:border-neon-green transition-colors"
+              >
+                <span class="text-2xl">🧠</span>
+              </div>
+              <h4 class="text-white font-bold text-xl mb-3">Layer 3: The AI Strategist</h4>
+              <p class="text-slate-400 text-sm leading-relaxed">
+                Writes a custom, step-by-step roadmap to fix your specific leaks immediately.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. COMPARISON (The No-Brainer) -->
+      <section class="max-w-4xl mx-auto px-6 py-32">
+        <h2 class="text-3xl font-bold text-white text-center mb-12">
+          Why are we giving this away?
+        </h2>
+
+        <div class="glass-panel rounded-2xl overflow-hidden">
+          <div
+            class="grid grid-cols-3 bg-slate-900/50 border-b border-white/5 text-sm font-bold text-slate-400 uppercase tracking-wider"
+          >
+            <div class="p-6">Feature</div>
+            <div class="p-6 border-l border-white/5">Hiring a Consultant</div>
+            <div class="p-6 border-l border-white/5 text-white bg-neon-green/10">The AI Engine</div>
+          </div>
+
+          <!-- Row 1 -->
+          <div class="grid grid-cols-3 border-b border-white/5 text-sm">
+            <div class="p-6 text-slate-300 font-medium">Cost</div>
+            <div class="p-6 border-l border-white/5 text-neon-red">₹50,000 - ₹1 Lakh</div>
+            <div class="p-6 border-l border-white/5 text-neon-green font-bold bg-neon-green/5">
+              ₹0.00 (Free)
+            </div>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="grid grid-cols-3 border-b border-white/5 text-sm">
+            <div class="p-6 text-slate-300 font-medium">Time Required</div>
+            <div class="p-6 border-l border-white/5 text-slate-400">2 Weeks of Meetings</div>
+            <div class="p-6 border-l border-white/5 text-white bg-neon-green/5">120 Seconds</div>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="grid grid-cols-3 border-b border-white/5 text-sm">
+            <div class="p-6 text-slate-300 font-medium">Output</div>
+            <div class="p-6 border-l border-white/5 text-slate-400">Static PDF Report</div>
+            <div class="p-6 border-l border-white/5 text-white bg-neon-green/5">
+              Interactive Dashboard
+            </div>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="grid grid-cols-3 text-sm">
+            <div class="p-6 text-slate-300 font-medium">Bias</div>
+            <div class="p-6 border-l border-white/5 text-slate-400">Human Error</div>
+            <div class="p-6 border-l border-white/5 text-white bg-neon-green/5">
+              Data-Driven Precision
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. DELIVERABLE PREVIEW & FOOTER -->
+      <section class="text-center pb-24 px-6">
+        <h2 class="text-3xl font-bold text-white mb-6">
+          It Costs ₹0 to Find the Leak.<br /><span class="text-neon-red"
+            >It Costs Lakhs to Ignore It.</span
+          >
+        </h2>
+
+        <p class="text-slate-400 mb-10 max-w-xl mx-auto">
+          We reserve this level of analysis for paying retainer clients. Take the audit while the
+          public access window is still open.
+        </p>
+
+        <button
+          onclick="window.location.href = 'profit_leak_diagnostic.html'"
+          class="group relative inline-flex items-center justify-center px-10 py-6 bg-white hover:bg-slate-200 text-slate-950 text-xl font-black rounded-xl transition-all shadow-[0_0_50px_rgba(255,255,255,0.2)] hover:shadow-[0_0_70px_rgba(255,255,255,0.4)] transform hover:-translate-y-1"
+        >
+          <span class="mr-3">ACCESS DIAGNOSTIC ENGINE</span>
+          <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+        </button>
+
+        <div class="mt-12 text-slate-600 text-xs font-mono uppercase tracking-widest">
+          Secure 256-bit Encryption &bull; 100% Private Data &bull; No Credit Card Required
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // Typing Effect Logic
+      const text =
+        'We trained a proprietary AI model on 5+ years of B2B growth data. It provides the same "PhD-Level" forensic analysis as our senior strategists—but in 2 minutes, not 2 weeks.';
+      const typingElement = document.getElementById("typing-text");
+      let index = 0;
+
+      function typeWriter() {
+        if (index < text.length) {
+          typingElement.innerHTML += text.charAt(index);
+          index++;
+          setTimeout(typeWriter, 20); // Typing speed
+        }
+      }
+
+      // Start typing when page loads
+      window.onload = function () {
+        setTimeout(typeWriter, 500);
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bizgrowww | Profit Leak Diagnostic Engine</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Config & Styling -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              slate: {
+                850: "#151e32",
+                900: "#0f172a",
+                950: "#020617",
+              },
+              neon: {
+                red: "#ef4444",
+                green: "#22c55e",
+                yellow: "#eab308",
+              },
+            },
+            animation: {
+              "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      body {
+        background-color: #0f172a; /* Slate 900 */
+        color: #f8fafc; /* Slate 50 */
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+      }
+
+      /* Chart Container Styling - Crucial for Responsiveness */
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 100%; /* Flexible within grid */
+        height: 300px;
+        margin: 0 auto;
+      }
+      @media (min-width: 768px) {
+        .chart-container {
+          height: 350px;
+        }
+      }
+
+      /* Glassmorphism Cards */
+      .glass-card {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      /* Gauge Animations */
+      .gauge-circle {
+        transition: stroke-dashoffset 1.5s ease-in-out;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+      }
+
+      /* Utility */
+      .hidden-step {
+        display: none;
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+
+    <!-- 
+    Chosen Palette: "Dark Mode Premium SaaS" 
+    Background: Slate 900 (#0f172a)
+    Primary Text: Slate 50 (#f8fafc)
+    Accent Danger: Neon Red (#ef4444)
+    Accent Success: Neon Green (#22c55e)
+    Accent Warning: Neon Yellow (#eab308)
+    -->
+
+    <!-- 
+    Application Structure Plan:
+    1. Hero/Welcome: Sets the stakes (Fear of Loss) and invites the user to audit.
+    2. Questionnaire Engine: A step-by-step wizard. Grouped logically (Baselines -> Acquisition -> Experience -> Efficiency).
+       - Logic: Captures inputs mapped directly to the Spec ($R, $L, $V, $H).
+    3. Analyzing State: Fake loader to build tension.
+    4. Dashboard (The Core Experience):
+       - Header: Massive "Total Profit Leak" counter (Red).
+       - Grid: 3 Pillars (Acquisition, Experience, Efficiency) showing scores and specific "AI" insights derived from triggers.
+       - Graph: 5-Year Trajectory (Stagnation vs. Growth).
+       - CTA: Sticky/Prominent action button dynamically selected based on the lowest score.
+    -->
+
+    <!-- 
+    Visualization & Content Choices:
+    1. Goal: Impact/Fear -> Method: Large Animated Counter for Currency. -> Logic: Immediate visual anchor of loss.
+    2. Goal: Compare Pillars -> Method: Circular Progress Gauges (Canvas/SVG logic via CSS). -> Logic: Quick visual health check.
+    3. Goal: Future Projection -> Method: Chart.js Line Chart. -> Logic: Show the compound effect of fixing the leak over 5 years.
+    4. Goal: Explain Issues -> Method: "AI" generated bullet points. -> Logic: Rule-based text generation based on specific answer triggers (e.g., "No Retargeting").
+    
+    CONFIRMATION: NO SVG graphics used (except for UI icons via SVG code, no raster/img tags). NO Mermaid JS used.
+    -->
+  </head>
+  <body
+    class="antialiased min-h-screen flex flex-col font-sans selection:bg-neon-green selection:text-slate-900"
+  >
+    <!-- Navigation -->
+    <nav class="w-full border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 bg-neon-green rounded flex items-center justify-center font-bold text-slate-900 text-xl"
+            >
+              B
+            </div>
+            <span class="font-bold text-xl tracking-tight text-white">bizgrowww</span>
+          </div>
+          <div class="text-sm text-slate-400">Profit Leak Diagnostic Engine v3.0</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main
+      id="app-container"
+      class="flex-grow flex flex-col items-center justify-center p-4 sm:p-6 w-full max-w-7xl mx-auto"
+    >
+      <!-- STAGE 1: HERO / WELCOME -->
+      <div id="hero-section" class="w-full max-w-3xl text-center space-y-8 py-12 fade-in">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium"
+        >
+          <span class="relative flex h-2 w-2">
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+            ></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+          </span>
+          Warning: You are likely losing revenue daily.
+        </div>
+
+        <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
+          Calculate Your Business's <br />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500"
+            >Hidden Profit Leak</span
+          >
+        </h1>
+
+        <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+          Most businesses bleed 30-40% of their revenue through invisible gaps in Marketing, Website
+          UX, and Manual Operations.
+          <br /><br />
+          Take this <strong>2-minute audit</strong> to see exactly how much money you are leaving on
+          the table—and how to get it back.
+        </p>
+
+        <button
+          onclick="app.startAudit()"
+          class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-slate-900 transition-all duration-200 bg-neon-green rounded-lg hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neon-green focus:ring-offset-slate-900"
+        >
+          <span>Start Profit Leak Audit</span>
+          <svg
+            class="w-5 h-5 ml-2 -mr-1 transition-transform group-hover:translate-x-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 7l5 5m0 0l-5 5m5-5H6"
+            ></path>
+          </svg>
+        </button>
+
+        <div class="pt-8 flex items-center justify-center gap-8 text-slate-500 text-sm">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <span>Data-Driven</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              ></path>
+            </svg>
+            <span>100% Private</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              ></path>
+            </svg>
+            <span>Instant Results</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 2: QUESTIONNAIRE -->
+      <div id="quiz-section" class="w-full max-w-2xl hidden-step">
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-800 rounded-full h-2 mb-8">
+          <div
+            id="progress-bar"
+            class="bg-neon-green h-2 rounded-full transition-all duration-300"
+            style="width: 0%"
+          ></div>
+        </div>
+
+        <!-- Question Container -->
+        <div
+          id="question-container"
+          class="glass-card rounded-2xl p-6 sm:p-10 min-h-[400px] flex flex-col justify-between"
+        >
+          <div>
+            <span
+              id="question-category"
+              class="text-xs font-bold uppercase tracking-wider text-neon-green mb-2 block"
+              >Category</span
+            >
+            <h2 id="question-text" class="text-2xl font-bold text-white mb-6">
+              Question Text Here
+            </h2>
+            <div id="options-container" class="space-y-3">
+              <!-- Options injected via JS -->
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center mt-8 pt-6 border-t border-slate-700">
+            <button
+              id="btn-prev"
+              onclick="app.prevQuestion()"
+              class="text-slate-400 hover:text-white font-medium px-4 py-2 rounded transition-colors hidden"
+            >
+              Back
+            </button>
+            <div class="text-slate-500 text-sm">
+              Question <span id="q-current">1</span> of <span id="q-total">13</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 3: LOADING / ANALYZING -->
+      <div id="loading-section" class="w-full max-w-3xl text-center hidden-step py-20">
+        <div class="relative w-24 h-24 mx-auto mb-8">
+          <div
+            class="absolute inset-0 border-t-4 border-neon-green rounded-full animate-spin"
+          ></div>
+          <div
+            class="absolute inset-2 border-r-4 border-slate-700 rounded-full animate-spin"
+            style="animation-direction: reverse; animation-duration: 2s"
+          ></div>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-2">Analyzing Your Profit Leaks...</h2>
+        <p id="loading-text" class="text-slate-400 animate-pulse">
+          Calculating operational inefficiencies...
+        </p>
+      </div>
+
+      <!-- STAGE 4: DASHBOARD RESULTS -->
+      <div id="dashboard-section" class="w-full max-w-7xl hidden-step space-y-8 pb-12">
+        <!-- 1. Header Metrics (The "Bleeding" Number) -->
+        <div
+          class="glass-card rounded-2xl p-8 text-center relative overflow-hidden border-t-4 border-t-neon-red"
+        >
+          <div
+            class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-red-500/5 to-transparent pointer-events-none"
+          ></div>
+          <div class="relative z-10">
+            <h2 class="text-sm font-bold text-red-400 uppercase tracking-widest mb-2">
+              Estimated Annual Revenue Leak
+            </h2>
+            <div class="flex items-baseline justify-center gap-1">
+              <span
+                id="total-leak-display"
+                class="text-5xl sm:text-7xl font-black text-white tracking-tighter drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]"
+                >₹0</span
+              >
+            </div>
+            <p class="text-slate-400 mt-4 max-w-2xl mx-auto">
+              Based on your inputs, your current systems are burning this capital annually. This is
+              not just lost profit; it is fuel for your competitors.
+            </p>
+          </div>
+        </div>
+
+        <!-- 2. The 3 Pillars Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Pillar A: Acquisition -->
+          <div class="glass-card rounded-xl p-6 border-t-2" id="card-acquisition">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="font-bold text-lg text-white">Acquisition Engine</h3>
+              <span id="score-acquisition" class="text-2xl font-black">0/100</span>
+            </div>
+            <div class="w-full bg-slate-700 h-2 rounded-full mb-6">
+              <div
+                id="bar-acquisition"
+                class="h-2 rounded-full transition-all duration-1000"
+                style="width: 0%"
+              ></div>
+            </div>
+            <div class="space-y-3">
+              <h4 class="text-xs font-bold text-slate-500 uppercase">Critical Issues Detected:</h4>
+              <ul id="list-acquisition" class="space-y-2 text-sm text-slate-300">
+                <!-- JS Injected Bullets -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- Pillar B: Experience -->
+          <div class="glass-card rounded-xl p-6 border-t-2" id="card-experience">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="font-bold text-lg text-white">Digital Experience</h3>
+              <span id="score-experience" class="text-2xl font-black">0/100</span>
+            </div>
+            <div class="w-full bg-slate-700 h-2 rounded-full mb-6">
+              <div
+                id="bar-experience"
+                class="h-2 rounded-full transition-all duration-1000"
+                style="width: 0%"
+              ></div>
+            </div>
+            <div class="space-y-3">
+              <h4 class="text-xs font-bold text-slate-500 uppercase">Critical Issues Detected:</h4>
+              <ul id="list-experience" class="space-y-2 text-sm text-slate-300">
+                <!-- JS Injected Bullets -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- Pillar C: Efficiency -->
+          <div class="glass-card rounded-xl p-6 border-t-2" id="card-efficiency">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="font-bold text-lg text-white">Operational Efficiency</h3>
+              <span id="score-efficiency" class="text-2xl font-black">0/100</span>
+            </div>
+            <div class="w-full bg-slate-700 h-2 rounded-full mb-6">
+              <div
+                id="bar-efficiency"
+                class="h-2 rounded-full transition-all duration-1000"
+                style="width: 0%"
+              ></div>
+            </div>
+            <div class="space-y-3">
+              <h4 class="text-xs font-bold text-slate-500 uppercase">Critical Issues Detected:</h4>
+              <ul id="list-efficiency" class="space-y-2 text-sm text-slate-300">
+                <!-- JS Injected Bullets -->
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Trajectory Graph -->
+        <div class="glass-card rounded-2xl p-6 sm:p-8">
+          <div class="flex flex-col sm:flex-row justify-between items-end mb-6">
+            <div>
+              <h3 class="text-xl font-bold text-white">5-Year Revenue Trajectory</h3>
+              <p class="text-slate-400 text-sm">Status Quo vs. Optimized Automation</p>
+            </div>
+            <div class="flex gap-4 mt-4 sm:mt-0 text-xs sm:text-sm">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-slate-500"></div>
+                <span class="text-slate-400">Current Path (Stagnation)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-neon-green"></div>
+                <span class="text-neon-green font-bold">With Bizgrowww (Growth)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="trajectoryChart"></canvas>
+          </div>
+        </div>
+
+        <!-- 4. Dynamic CTA -->
+        <div id="sticky-cta" class="sticky bottom-4 z-40">
+          <div
+            class="glass-card bg-slate-900/90 border border-neon-green/30 shadow-[0_0_30px_rgba(34,197,94,0.15)] rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto backdrop-blur-xl"
+          >
+            <div class="text-center sm:text-left">
+              <h3 id="cta-headline" class="text-lg sm:text-xl font-bold text-white">
+                STOP THE MANUAL GRIND
+              </h3>
+              <p id="cta-subtext" class="text-sm text-slate-400">
+                You are wasting 15 hours/week. Let AI handle it.
+              </p>
+            </div>
+            <button
+              class="w-full sm:w-auto px-8 py-3 bg-neon-green hover:bg-green-400 text-slate-900 font-bold rounded-lg shadow-lg hover:shadow-green-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap"
+            >
+              <span id="cta-button-text">BOOK AUTOMATION FIX CALL</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- LOGIC ENGINE -->
+    <script>
+      // --- 1. CONFIGURATION & DATA ---
+
+      // Questions Mapped directly from Spec
+      const questions = [
+        // PART 1: Baselines
+        {
+          id: "revenue",
+          category: "Baselines",
+          text: "What was your approximate annual revenue last year?",
+          options: [
+            { label: "Less than ₹10 Lakhs", value: 500000 },
+            { label: "₹10L – ₹50 Lakhs", value: 3000000 },
+            { label: "₹50L – ₹1 Crore", value: 7500000 },
+            { label: "₹1 Cr – ₹5 Crores", value: 30000000 },
+            { label: "More than ₹5 Crores", value: 60000000 },
+          ],
+        },
+        {
+          id: "deal_value",
+          category: "Baselines",
+          text: "What is the average value of a single closed deal or customer (LTV)?",
+          options: [
+            { label: "Less than ₹10k", value: 5000 },
+            { label: "₹10k – ₹50k", value: 30000 },
+            { label: "₹50k – ₹1 Lakh", value: 75000 },
+            { label: "₹1 Lakh – ₹5 Lakhs", value: 300000 },
+            { label: "More than ₹5 Lakhs", value: 600000 },
+          ],
+        },
+        {
+          id: "leads",
+          category: "Baselines",
+          text: "Roughly how many new leads/inquiries do you get per month?",
+          options: [
+            { label: "Less than 10", value: 5 },
+            { label: "10 – 50", value: 30 },
+            { label: "50 – 100", value: 75 },
+            { label: "100 – 500", value: 300 },
+            { label: "500+", value: 600 },
+          ],
+        },
+        {
+          id: "team_size",
+          category: "Baselines",
+          text: "How large is your team (including yourself)?",
+          options: [
+            { label: "Just me", value: "1" },
+            { label: "2-5 People", value: "2-5" },
+            { label: "6-15 People", value: "6-15" },
+            { label: "16-50 People", value: "16-50" },
+            { label: "50+ People", value: "50+" },
+          ],
+        },
+
+        // PART 2: Acquisition
+        {
+          id: "source",
+          category: "Acquisition",
+          text: "How do you currently generate the majority of your new leads?",
+          options: [
+            { label: "Word of Mouth / Referrals", value: "Word of Mouth" },
+            { label: "Paid Ads (FB/Google/LinkedIn)", value: "Paid Ads" },
+            { label: "Cold Outreach / DMing", value: "Cold Outreach" },
+            { label: "Content / SEO", value: "Content" },
+            { label: "No consistent source", value: "Inconsistent" },
+          ],
+        },
+        {
+          id: "retargeting",
+          category: "Acquisition",
+          text: "Are you running 'Retargeting Ads' to people who visited your site but didn't buy?",
+          options: [
+            { label: "Yes, we have active pixel campaigns.", value: "Yes" },
+            { label: "No, we rely on first-time conversions.", value: "No" },
+            { label: "What is retargeting?", value: "What is retargeting?" },
+          ],
+        },
+        {
+          id: "tracking",
+          category: "Acquisition",
+          text: "Which tracking analytics are active on your site?",
+          options: [
+            { label: "Google Analytics 4 / FB Pixel", value: "Pixel" },
+            { label: "None / I don't know", value: "None" },
+          ],
+        },
+
+        // PART 3: Experience
+        {
+          id: "speed",
+          category: "Experience",
+          text: "Be honest: How fast does your website load on a mobile phone?",
+          options: [
+            { label: "Instantly (Under 2 seconds)", value: "Instant" },
+            { label: "Decent (2-4 seconds)", value: "Decent" },
+            { label: "Painfully slow (I often wait for it)", value: "Painfully Slow" },
+            { label: "I don't have a website", value: "No Site" },
+          ],
+        },
+        {
+          id: "landing_page",
+          category: "Experience",
+          text: "When you run ads or post content, where do you send the traffic?",
+          options: [
+            { label: "To a dedicated Landing Page", value: "Landing Page" },
+            { label: "To my Website's Home Page", value: "Home Page" },
+            { label: "To WhatsApp/DM", value: "DM" },
+          ],
+        },
+        {
+          id: "mobile",
+          category: "Experience",
+          text: "How does your site look on mobile?",
+          options: [
+            { label: "Perfectly optimized", value: "Good" },
+            { label: "Cuts off text/images sometimes", value: "Cuts off text/images" },
+          ],
+        },
+
+        // PART 4: Efficiency
+        {
+          id: "data_entry",
+          category: "Efficiency",
+          text: "How do you transfer lead data into your CRM/Spreadsheet?",
+          options: [
+            { label: "Automatically (Zapier/API)", value: "Auto" },
+            { label: "Manually copy-paste / Export CSVs", value: "Manual" },
+            { label: "Write it in a notebook", value: "Notebook" },
+          ],
+        },
+        {
+          id: "admin_hours",
+          category: "Efficiency",
+          text: "How many hours per week does your team spend on 'Admin' (Data entry, scheduling)?",
+          options: [
+            { label: "Less than 2 hours", value: 1 },
+            { label: "2 - 5 hours", value: 3.5 },
+            { label: "5 - 10 hours", value: 7.5 },
+            { label: "10 - 20 hours", value: 15 },
+            { label: "20+ hours", value: 25 },
+          ],
+        },
+        {
+          id: "follow_up",
+          category: "Efficiency",
+          text: "Do you have an automated email/SMS sequence for leads?",
+          options: [
+            { label: "Yes, fully automated", value: "Automated" },
+            { label: "We send 1-2 manual follow-ups", value: "Manual" },
+            { label: "No", value: "No" },
+          ],
+        },
+      ];
+
+      // --- 2. APP STATE & CONTROLLER ---
+      const app = {
+        currentQuestionIndex: 0,
+        answers: {},
+
+        init: function () {
+          // Pre-load images or logic if needed
+        },
+
+        startAudit: function () {
+          document.getElementById("hero-section").classList.add("hidden-step");
+          document.getElementById("quiz-section").classList.remove("hidden-step");
+          document.getElementById("quiz-section").classList.add("fade-in");
+          this.renderQuestion();
+        },
+
+        renderQuestion: function () {
+          const q = questions[this.currentQuestionIndex];
+
+          // Update Progress
+          const progress = (this.currentQuestionIndex / questions.length) * 100;
+          document.getElementById("progress-bar").style.width = `${progress}%`;
+
+          // Update Text
+          document.getElementById("question-category").innerText = q.category;
+          document.getElementById("question-text").innerText = q.text;
+          document.getElementById("q-current").innerText = this.currentQuestionIndex + 1;
+          document.getElementById("q-total").innerText = questions.length;
+
+          // Update Back Button
+          const btnPrev = document.getElementById("btn-prev");
+          if (this.currentQuestionIndex > 0) {
+            btnPrev.classList.remove("hidden");
+          } else {
+            btnPrev.classList.add("hidden");
+          }
+
+          // Render Options
+          const optsContainer = document.getElementById("options-container");
+          optsContainer.innerHTML = "";
+
+          q.options.forEach((opt, idx) => {
+            const btn = document.createElement("button");
+            btn.className =
+              "w-full text-left p-4 rounded-xl border border-slate-700 bg-slate-800/50 hover:bg-slate-700 hover:border-neon-green transition-all duration-200 text-slate-200 font-medium flex items-center group";
+            btn.innerHTML = `
+                        <span class="w-6 h-6 rounded-full border border-slate-500 mr-4 flex items-center justify-center group-hover:border-neon-green group-hover:bg-neon-green/10">
+                            <div class="w-2 h-2 rounded-full bg-neon-green opacity-0 group-hover:opacity-100"></div>
+                        </span>
+                        ${opt.label}
+                    `;
+            btn.onclick = () => this.handleAnswer(q.id, opt.value);
+            optsContainer.appendChild(btn);
+          });
+        },
+
+        handleAnswer: function (questionId, value) {
+          this.answers[questionId] = value;
+
+          if (this.currentQuestionIndex < questions.length - 1) {
+            this.currentQuestionIndex++;
+            // Small delay for UI feel
+            setTimeout(() => this.renderQuestion(), 150);
+          } else {
+            this.finishAudit();
+          }
+        },
+
+        prevQuestion: function () {
+          if (this.currentQuestionIndex > 0) {
+            this.currentQuestionIndex--;
+            this.renderQuestion();
+          }
+        },
+
+        finishAudit: function () {
+          document.getElementById("quiz-section").classList.add("hidden-step");
+          document.getElementById("loading-section").classList.remove("hidden-step");
+          document.getElementById("loading-section").classList.add("fade-in");
+
+          // Simulate Analysis Steps
+          const loadingText = document.getElementById("loading-text");
+          setTimeout(() => (loadingText.innerText = "Analyzing Acquisition Funnels..."), 800);
+          setTimeout(() => (loadingText.innerText = "Auditing Mobile Performance..."), 1600);
+          setTimeout(() => (loadingText.innerText = "Calculating Payroll Leakage..."), 2400);
+          setTimeout(() => {
+            this.calculateAndShowResults();
+          }, 3200);
+        },
+
+        calculateAndShowResults: function () {
+          const results = calculator.process(this.answers);
+
+          // Hide Loading, Show Dashboard
+          document.getElementById("loading-section").classList.add("hidden-step");
+          document.getElementById("dashboard-section").classList.remove("hidden-step");
+          document.getElementById("dashboard-section").classList.add("fade-in");
+
+          // 1. Render Header Metric
+          this.animateCounter("total-leak-display", results.totalLeak, "₹");
+
+          // 2. Render Pillars
+          this.renderPillar("acquisition", results.scores.acquisition, results.ai.acquisition);
+          this.renderPillar("experience", results.scores.experience, results.ai.experience);
+          this.renderPillar("efficiency", results.scores.efficiency, results.ai.efficiency);
+
+          // 3. Render Chart
+          this.renderChart(results.graphData);
+
+          // 4. Render CTA
+          document.getElementById("cta-headline").innerText = results.cta.headline;
+          document.getElementById("cta-subtext").innerText = results.cta.subtext;
+          document.getElementById("cta-button-text").innerText = results.cta.button_text;
+        },
+
+        renderPillar: function (id, score, bullets) {
+          // Score text
+          document.getElementById(`score-${id}`).innerText = `${score}/100`;
+
+          // Bar width & color
+          const bar = document.getElementById(`bar-${id}`);
+          setTimeout(() => {
+            bar.style.width = `${score}%`;
+          }, 200);
+
+          // Color Logic
+          let colorClass = "bg-neon-red";
+          let textClass = "text-neon-red";
+          let cardBorderClass = "border-neon-red";
+
+          if (score > 75) {
+            colorClass = "bg-neon-green";
+            textClass = "text-neon-green";
+            cardBorderClass = "border-neon-green";
+          } else if (score > 40) {
+            colorClass = "bg-neon-yellow";
+            textClass = "text-neon-yellow";
+            cardBorderClass = "border-neon-yellow";
+          }
+
+          bar.classList.add(colorClass);
+          document.getElementById(`score-${id}`).classList.add(textClass);
+          document.getElementById(`card-${id}`).classList.add(cardBorderClass); // Border top color
+
+          // Bullets
+          const list = document.getElementById(`list-${id}`);
+          list.innerHTML = bullets
+            .map(
+              (b) =>
+                `<li class="flex items-start gap-2"><span class="text-neon-red mt-1">✖</span> ${b}</li>`,
+            )
+            .join("");
+        },
+
+        animateCounter: function (id, endValue, prefix = "") {
+          const obj = document.getElementById(id);
+          let startValue = 0;
+          let duration = 2000;
+          let startTime = null;
+
+          function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const currentValue = Math.floor(progress * endValue);
+
+            obj.innerHTML = prefix + new Intl.NumberFormat("en-IN").format(currentValue);
+
+            if (progress < 1) {
+              window.requestAnimationFrame(step);
+            }
+          }
+          window.requestAnimationFrame(step);
+        },
+
+        renderChart: function (data) {
+          const ctx = document.getElementById("trajectoryChart").getContext("2d");
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: data.labels,
+              datasets: [
+                {
+                  label: "Current Path",
+                  data: data.current_path,
+                  borderColor: "#64748b", // Slate 500
+                  borderDash: [5, 5],
+                  borderWidth: 2,
+                  pointRadius: 0,
+                  tension: 0.4,
+                },
+                {
+                  label: "With Bizgrowww",
+                  data: data.optimized_path,
+                  borderColor: "#22c55e", // Neon Green
+                  backgroundColor: "rgba(34, 197, 94, 0.1)",
+                  borderWidth: 3,
+                  fill: true,
+                  tension: 0.4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  mode: "index",
+                  intersect: false,
+                  backgroundColor: "#1e293b",
+                  titleColor: "#f8fafc",
+                  bodyColor: "#cbd5e1",
+                  borderColor: "#334155",
+                  borderWidth: 1,
+                  callbacks: {
+                    label: function (context) {
+                      let label = context.dataset.label || "";
+                      if (label) {
+                        label += ": ";
+                      }
+                      if (context.parsed.y !== null) {
+                        label += new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                          maximumSignificantDigits: 3,
+                        }).format(context.parsed.y);
+                      }
+                      return label;
+                    },
+                  },
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: false,
+                  grid: { color: "#334155" },
+                  ticks: {
+                    color: "#94a3b8",
+                    callback: function (value) {
+                      return "₹" + (value / 100000).toFixed(1) + "L";
+                    },
+                  },
+                },
+                x: {
+                  grid: { display: false },
+                  ticks: { color: "#94a3b8" },
+                },
+              },
+            },
+          });
+        },
+      };
+
+      // --- 3. CALCULATOR ENGINE (The Brain) ---
+      const calculator = {
+        process: function (answers) {
+          // 1. Extract Anchors
+          const R = answers.revenue; // Revenue
+          const V = answers.deal_value; // Deal Value
+          const L = answers.leads; // Lead Vol
+          const H = answers.admin_hours; // Hours
+
+          // 2. Pillar 1: Acquisition Logic
+          let marketing_penalty = 0;
+          let mk_triggers = [];
+
+          if (answers.retargeting === "No" || answers.retargeting === "What is retargeting?") {
+            marketing_penalty += 0.4;
+            mk_triggers.push("NO_RETARGETING");
+          }
+          if (answers.tracking === "None") {
+            marketing_penalty += 0.2;
+            mk_triggers.push("NO_TRACKING");
+          }
+          if (answers.source === "Word of Mouth" || answers.source === "Inconsistent") {
+            marketing_penalty += 0.15;
+            mk_triggers.push("RELIANCE_ON_LUCK");
+          }
+
+          marketing_penalty = Math.min(marketing_penalty, 0.75);
+          const leak_marketing = L * 12 * V * marketing_penalty;
+          const score_marketing = Math.round(100 - marketing_penalty * 100);
+
+          // 3. Pillar 2: Experience Logic
+          let exp_penalty = 0;
+          let exp_triggers = [];
+
+          if (answers.speed === "Painfully Slow") {
+            exp_penalty += 0.35;
+            exp_triggers.push("SLOW_SPEED");
+          }
+          if (answers.landing_page === "Home Page") {
+            exp_penalty += 0.2;
+            exp_triggers.push("HOME_PAGE_DUMP");
+          }
+          if (answers.mobile === "Cuts off text/images") {
+            exp_penalty += 0.25;
+            exp_triggers.push("BAD_MOBILE");
+          }
+
+          exp_penalty = Math.min(exp_penalty, 0.6);
+          const leak_experience = R * exp_penalty;
+          const score_experience = Math.round(100 - exp_penalty * 100);
+
+          // 4. Pillar 3: Efficiency Logic
+          let eff_penalty = 0;
+          let eff_triggers = [];
+
+          if (answers.data_entry === "Manual" || answers.data_entry === "Notebook") {
+            eff_penalty += 0.3;
+            eff_triggers.push("MANUAL_ENTRY");
+          }
+          if (H > 10) {
+            eff_penalty += 0.2;
+            eff_triggers.push("HIGH_ADMIN_BURN");
+          }
+          if (answers.follow_up === "Manual" || answers.follow_up === "No") {
+            eff_penalty += 0.25;
+            eff_triggers.push("POOR_FOLLOWUP");
+          }
+
+          const score_efficiency = Math.round(100 - eff_penalty * 100);
+
+          // Hard Cost + Soft Cost
+          const leak_ops_hard = H * 52 * 500;
+          let leak_ops_soft = 0;
+          if (answers.follow_up !== "Automated") {
+            leak_ops_soft = L * 12 * V * 0.2;
+          }
+          const leak_efficiency = leak_ops_hard + leak_ops_soft;
+
+          // 5. Grand Total
+          let total_leak = leak_marketing + leak_experience + leak_efficiency;
+
+          // Sanity Cap
+          if (R > 10000000 && total_leak > R * 0.8) {
+            total_leak = R * 0.8;
+          }
+          // Minimum Floor
+          if (total_leak < 480000) total_leak = 480000;
+
+          // 6. Generate AI Insights
+          const ai_insights = this.generateAI(mk_triggers, exp_triggers, eff_triggers, H);
+
+          // 7. Graph Data
+          const graph = this.generateGraph(R, total_leak);
+
+          // 8. CTA Logic
+          const cta = this.generateCTA(score_marketing, score_experience, score_efficiency, H);
+
+          return {
+            totalLeak: Math.round(total_leak),
+            scores: {
+              acquisition: score_marketing,
+              experience: score_experience,
+              efficiency: score_efficiency,
+            },
+            ai: ai_insights,
+            graphData: graph,
+            cta: cta,
+          };
+        },
+
+        // Deterministic "AI" Generator based on triggers
+        generateAI: function (mk, exp, eff, H) {
+          const getBullets = (triggers, type) => {
+            let bullets = [];
+
+            // Acquisition Rules
+            if (type === "mk") {
+              if (triggers.includes("NO_RETARGETING")) {
+                bullets.push("You are paying to acquire traffic but letting 96% leave forever.");
+                bullets.push(
+                  "Without retargeting, your ad spend CPA is likely 2x higher than necessary.",
+                );
+              }
+              if (triggers.includes("NO_TRACKING")) {
+                bullets.push(
+                  "You are flying blind without pixel data, making optimization impossible.",
+                );
+              }
+              if (triggers.includes("RELIANCE_ON_LUCK")) {
+                bullets.push("Relying on Word of Mouth creates unpredictable revenue dips.");
+              }
+              if (bullets.length === 0)
+                bullets.push("Your acquisition is decent, but lacks automated scalability.");
+            }
+
+            // Experience Rules
+            if (type === "exp") {
+              if (triggers.includes("SLOW_SPEED")) {
+                bullets.push(
+                  "Google penalizes slow sites. You are losing ~30% of visitors before load.",
+                );
+              }
+              if (triggers.includes("HOME_PAGE_DUMP")) {
+                bullets.push(
+                  "Sending traffic to a Home Page causes 'Analysis Paralysis'. Conversion rates drop by 80%.",
+                );
+              }
+              if (triggers.includes("BAD_MOBILE")) {
+                bullets.push("Mobile users are abandoning your site due to layout breaks.");
+              }
+              if (bullets.length === 0)
+                bullets.push(
+                  "UX is functional but could be optimized for higher conversion velocity.",
+                );
+            }
+
+            // Efficiency Rules
+            if (type === "eff") {
+              if (triggers.includes("MANUAL_ENTRY")) {
+                bullets.push(
+                  "Manual data entry is prone to human error and slows down sales cycles.",
+                );
+              }
+              if (triggers.includes("HIGH_ADMIN_BURN")) {
+                bullets.push(
+                  `Your team wastes ~${H} hours/week on robot tasks. That's ${H * 52} hours/year.`,
+                );
+              }
+              if (triggers.includes("POOR_FOLLOWUP")) {
+                bullets.push(
+                  "Most sales happen on the 5th follow-up. Manual effort usually stops at the 2nd.",
+                );
+              }
+              if (bullets.length === 0)
+                bullets.push("Basic ops are fine, but lack of automation limits scaling speed.");
+            }
+
+            // Fallback to ensure 3 bullets always
+            while (bullets.length < 3) {
+              bullets.push("Optimization opportunity detected in current workflow.");
+            }
+            return bullets.slice(0, 3);
+          };
+
+          return {
+            acquisition: getBullets(mk, "mk"),
+            experience: getBullets(exp, "exp"),
+            efficiency: getBullets(eff, "eff"),
+          };
+        },
+
+        generateGraph: function (R, leak) {
+          let current_path = [];
+          let optimized_path = [];
+          let val = R;
+          let opt_val = R + leak;
+
+          for (let i = 0; i < 5; i++) {
+            current_path.push(Math.round(val));
+            val = val * 1.05; // 5% growth
+
+            optimized_path.push(Math.round(opt_val));
+            opt_val = opt_val * 1.25; // 25% growth
+          }
+
+          return {
+            labels: ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"],
+            current_path: current_path,
+            optimized_path: optimized_path,
+          };
+        },
+
+        generateCTA: function (mk, exp, eff, H) {
+          if (eff <= mk && eff <= exp) {
+            return {
+              headline: "STOP THE MANUAL GRIND",
+              subtext: `You are wasting ${H} hours/week. Let AI handle it.`,
+              button_text: "BOOK AUTOMATION FIX CALL",
+            };
+          } else if (mk <= exp) {
+            return {
+              headline: "BUILD YOUR LEAD ENGINE",
+              subtext: "Stop relying on referrals. Get predictable leads.",
+              button_text: "BOOK STRATEGY DEBRIEF",
+            };
+          } else {
+            return {
+              headline: "FIX YOUR DIGITAL STOREFRONT",
+              subtext: "You are losing traffic at the door. Let's fix your conversion.",
+              button_text: "BOOK WEB AUDIT CALL",
+            };
+          }
+        },
+      };
+
+      // Start App
+      app.init();
+    </script>
+  </body>
+</html>

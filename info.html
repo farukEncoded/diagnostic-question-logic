@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bizgrowww | Profit Leak Diagnostic Engine</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Chosen Palette: Modern Professional (Light) -->
+    <!-- Background: Warm Neutral (#f8fafc) -->
+    <!-- Text: Slate 900 (#0f172a) -->
+    <!-- Primary Action: Vibrant Emerald (#10b981) -->
+    <!-- Danger/Leak: Vibrant Rose (#f43f5e) -->
+    <!-- Warning: Amber (#f59e0b) -->
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "sans-serif"] },
+            colors: {
+              brand: {
+                bg: "#f8fafc",
+                card: "#ffffff",
+                text: "#0f172a",
+                muted: "#64748b",
+                danger: "#f43f5e",
+                success: "#10b981",
+                warning: "#f59e0b",
+              },
+            },
+            boxShadow: {
+              soft: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+              glow: "0 0 15px rgba(244, 63, 94, 0.3)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      body {
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      /* Chart Container Styling - MANDATORY */
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 100%; /* Constraint within grid */
+        height: 300px;
+        margin: 0 auto;
+      }
+      @media (min-width: 768px) {
+        .chart-container {
+          height: 350px;
+        }
+      }
+
+      /* Specific constraint for Doughnut charts to prevent them becoming huge */
+      .doughnut-container {
+        position: relative;
+        width: 100%;
+        max-width: 250px;
+        height: 250px;
+        margin: 0 auto;
+      }
+
+      .step-transition {
+        transition:
+          opacity 0.4s ease-in-out,
+          transform 0.4s ease-in-out;
+      }
+      .hidden-step {
+        display: none;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .active-step {
+        display: block;
+        opacity: 1;
+        animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+
+    <!-- Application Structure Plan: 
+         1. Hero Section: Hook the user with the concept of "Profit Leak". Clean, centered text with a primary CTA.
+         2. Diagnostic Wizard: A multi-step form presenting the 27 questions. Progress bar included.
+         3. Calculation State: A brief "analyzing" screen to build anticipation.
+         4. Results Dashboard: 
+            - Header: The "Total Leak" number (Inform).
+            - Pillars: 3 Columns showing health scores via Doughnut charts (Compare/Inform).
+            - Trajectory: Line chart comparing current vs optimized future (Change).
+            - Insights: Textual AI-simulated analysis (Inform).
+            - CTA: Sticky bottom bar for conversion.
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Total Leak -> Goal: Inform -> Method: HTML Text Counter -> Interaction: Count-up animation.
+         2. Pillar Scores -> Goal: Compare -> Method: Chart.js Doughnut -> Interaction: Tooltip showing score. -> Justification: Doughnuts are standard for "completeness" or "health" metrics.
+         3. Revenue Projection -> Goal: Change -> Method: Chart.js Line Chart -> Interaction: Hover for values. -> Justification: Best for showing trend divergence over time.
+         4. Question Logic -> Goal: Organize -> Method: JS State Machine -> Interaction: Click to advance.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+  </head>
+  <body class="antialiased min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="w-full bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="font-black text-2xl tracking-tighter text-brand-text">
+          bizgrowww<span class="text-brand-success">.</span>
+        </div>
+        <div class="text-xs font-semibold uppercase tracking-wider text-brand-muted">
+          Diagnostic Engine v3.0
+        </div>
+      </div>
+    </nav>
+
+    <main
+      class="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center"
+    >
+      <!-- 1. HERO SECTION -->
+      <div id="hero" class="active-step w-full max-w-3xl text-center py-12">
+        <div
+          class="inline-block bg-brand-danger/10 text-brand-danger font-bold px-4 py-1.5 rounded-full text-sm mb-6 shadow-sm border border-brand-danger/20"
+        >
+          &#x26A0; Warning: Revenue Leakage Detected
+        </div>
+        <h1 class="text-4xl sm:text-6xl font-black text-brand-text mb-6 leading-tight">
+          Is Your Business Leaking <br />
+          <span class="text-brand-danger"> Lakhs in Profit?</span>
+        </h1>
+        <p class="text-lg sm:text-xl text-brand-muted mb-10 max-w-2xl mx-auto leading-relaxed">
+          Inefficient systems, ignored leads, and manual busywork silently drain 30-40% of revenue.
+          Answer 25 questions to calculate your exact <strong>Annual Profit Leak</strong>.
+        </p>
+        <button
+          onclick="app.start()"
+          class="bg-brand-text text-white text-lg font-bold px-10 py-4 rounded-xl shadow-lg hover:shadow-xl hover:bg-slate-800 transition-all transform hover:-translate-y-1"
+        >
+          Start Audit &#x2192;
+        </button>
+        <div class="mt-8 flex justify-center gap-8 text-sm text-brand-muted font-medium">
+          <span>&#10003; Free Analysis</span>
+          <span>&#10003; Instant Report</span>
+          <span>&#10003; 100% Private</span>
+        </div>
+      </div>
+
+      <!-- 2. QUIZ SECTION -->
+      <div id="quiz" class="hidden-step w-full max-w-2xl">
+        <div class="mb-8">
+          <div class="flex justify-between text-xs font-bold uppercase text-brand-muted mb-2">
+            <span id="quiz-category">Baselines</span>
+            <span id="quiz-progress-text">0%</span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-2.5">
+            <div
+              id="quiz-progress-bar"
+              class="bg-brand-text h-2.5 rounded-full transition-all duration-500"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft border border-slate-100 p-6 sm:p-10">
+          <h2 id="question-text" class="text-2xl font-bold text-brand-text mb-8 min-h-[4rem]">
+            Loading...
+          </h2>
+          <div id="options-container" class="space-y-3">
+            <!-- Options injected here -->
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button
+            id="btn-back"
+            onclick="app.back()"
+            class="text-brand-muted hover:text-brand-text font-medium px-4 py-2 invisible"
+          >
+            &#x2190; Back
+          </button>
+          <div class="text-brand-muted text-sm py-2">
+            Question <span id="q-idx">1</span> of <span id="q-total">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. PROCESSING SECTION -->
+      <div id="processing" class="hidden-step w-full max-w-xl text-center py-20">
+        <div class="inline-block text-6xl mb-6 animate-bounce">&#x2699;</div>
+        <h2 class="text-2xl font-bold text-brand-text mb-4">Crunching the Numbers...</h2>
+        <p id="processing-text" class="text-brand-muted">Analyzing Acquisition Channels...</p>
+      </div>
+
+      <!-- 4. RESULTS DASHBOARD -->
+      <div id="dashboard" class="hidden-step w-full space-y-10 pb-20">
+        <!-- A. HEADLINE METRIC (Inform) -->
+        <div
+          class="bg-white rounded-3xl shadow-soft border border-brand-danger/10 p-8 sm:p-12 text-center relative overflow-hidden"
+        >
+          <div class="absolute top-0 left-0 w-full h-2 bg-brand-danger"></div>
+          <h2 class="text-sm font-bold uppercase tracking-widest text-brand-muted mb-4">
+            Estimated Annual Profit Leak
+          </h2>
+          <div class="flex justify-center items-baseline gap-1">
+            <span
+              id="total-leak-display"
+              class="text-5xl sm:text-7xl font-black text-brand-danger tracking-tight"
+              >₹0</span
+            >
+          </div>
+          <p class="text-brand-muted mt-4 max-w-xl mx-auto">
+            This is the capital you are likely losing every year to inefficiencies, missed leads,
+            and friction.
+          </p>
+        </div>
+
+        <!-- B. PILLAR ANALYSIS (Compare) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Acquisition -->
+          <div class="bg-white rounded-2xl shadow-soft border border-slate-100 p-6">
+            <div class="text-center mb-4">
+              <h3 class="font-bold text-brand-text">Acquisition</h3>
+              <p class="text-xs text-brand-muted uppercase">Marketing Health</p>
+            </div>
+            <div class="doughnut-container mb-6">
+              <canvas id="chart-acquisition"></canvas>
+            </div>
+            <div class="space-y-3">
+              <div class="font-bold text-xs uppercase text-brand-muted border-b pb-2">
+                Key Issues Detected
+              </div>
+              <ul id="bullets-acquisition" class="text-sm text-brand-text space-y-2"></ul>
+            </div>
+          </div>
+
+          <!-- Experience -->
+          <div class="bg-white rounded-2xl shadow-soft border border-slate-100 p-6">
+            <div class="text-center mb-4">
+              <h3 class="font-bold text-brand-text">Experience</h3>
+              <p class="text-xs text-brand-muted uppercase">Digital Friction</p>
+            </div>
+            <div class="doughnut-container mb-6">
+              <canvas id="chart-experience"></canvas>
+            </div>
+            <div class="space-y-3">
+              <div class="font-bold text-xs uppercase text-brand-muted border-b pb-2">
+                Key Issues Detected
+              </div>
+              <ul id="bullets-experience" class="text-sm text-brand-text space-y-2"></ul>
+            </div>
+          </div>
+
+          <!-- Efficiency -->
+          <div class="bg-white rounded-2xl shadow-soft border border-slate-100 p-6">
+            <div class="text-center mb-4">
+              <h3 class="font-bold text-brand-text">Efficiency</h3>
+              <p class="text-xs text-brand-muted uppercase">Ops & Automation</p>
+            </div>
+            <div class="doughnut-container mb-6">
+              <canvas id="chart-efficiency"></canvas>
+            </div>
+            <div class="space-y-3">
+              <div class="font-bold text-xs uppercase text-brand-muted border-b pb-2">
+                Key Issues Detected
+              </div>
+              <ul id="bullets-efficiency" class="text-sm text-brand-text space-y-2"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- C. TRAJECTORY GRAPH (Change) -->
+        <div class="bg-white rounded-2xl shadow-soft border border-slate-100 p-6 sm:p-8">
+          <div class="flex flex-col sm:flex-row justify-between items-end mb-6">
+            <div>
+              <h3 class="text-xl font-bold text-brand-text">5-Year Growth Trajectory</h3>
+              <p class="text-sm text-brand-muted">The compound effect of fixing the leak.</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-trajectory"></canvas>
+          </div>
+        </div>
+
+        <!-- D. STICKY CTA -->
+        <div class="fixed bottom-4 left-0 w-full px-4 z-40">
+          <div
+            class="max-w-4xl mx-auto bg-brand-text text-white rounded-xl shadow-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-700"
+          >
+            <div>
+              <h3 id="cta-headline" class="font-bold text-lg">Stop The Leak Today</h3>
+              <p id="cta-subtext" class="text-slate-400 text-sm">We have a plan to fix this.</p>
+            </div>
+            <button
+              class="bg-brand-success hover:bg-emerald-400 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-colors w-full sm:w-auto"
+            >
+              <span id="cta-button">Book Strategy Call</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // --- DATA & QUESTIONS (From Technical Spec) ---
+      const questions = [
+        // BASELINES
+        {
+          id: "revenue",
+          category: "Baselines",
+          text: "What was your approximate annual revenue last year?",
+          options: [
+            { label: "Less than ₹10 Lakhs", value: 500000 },
+            { label: "₹10L – ₹50 Lakhs", value: 3000000 },
+            { label: "₹50L – ₹1 Crore", value: 7500000 },
+            { label: "₹1 Cr – ₹5 Crores", value: 30000000 },
+            { label: "More than ₹5 Crores", value: 60000000 },
+          ],
+        },
+        {
+          id: "deal_value",
+          category: "Baselines",
+          text: "What is the average value of a single closed deal?",
+          options: [
+            { label: "Less than ₹10k", value: 5000 },
+            { label: "₹10k – ₹50k", value: 30000 },
+            { label: "₹50k – ₹1 Lakh", value: 75000 },
+            { label: "₹1 Lakh – ₹5 Lakhs", value: 300000 },
+            { label: "More than ₹5 Lakhs", value: 600000 },
+          ],
+        },
+        {
+          id: "leads",
+          category: "Baselines",
+          text: "Roughly how many new leads do you get per month?",
+          options: [
+            { label: "Less than 10", value: 5 },
+            { label: "10 – 50", value: 30 },
+            { label: "50 – 100", value: 75 },
+            { label: "100 – 500", value: 300 },
+            { label: "500+", value: 600 },
+          ],
+        },
+        {
+          id: "team_size",
+          category: "Baselines",
+          text: "How large is your team (including yourself)?",
+          options: [
+            { label: "Just me", value: 1 },
+            { label: "2-5 People", value: 3 },
+            { label: "6-15 People", value: 10 },
+            { label: "16+", value: 20 },
+          ],
+        },
+        // PILLAR 1: ACQUISITION
+        {
+          id: "source",
+          category: "Acquisition",
+          text: "How do you generate the majority of new leads?",
+          options: [
+            { label: "Word of Mouth / Referrals", value: "Word of Mouth" },
+            { label: "Paid Ads (FB/Google)", value: "Paid Ads" },
+            { label: "Content / SEO", value: "Content" },
+            { label: "No consistent source", value: "Inconsistent" },
+          ],
+        },
+        {
+          id: "retargeting",
+          category: "Acquisition",
+          text: "Are you running Retargeting Ads?",
+          options: [
+            { label: "Yes, active pixel campaigns", value: "Yes" },
+            { label: "No, rely on first-time conversions", value: "No" },
+            { label: "What is retargeting?", value: "What is retargeting?" },
+          ],
+        },
+        {
+          id: "tracking",
+          category: "Acquisition",
+          text: "Which analytics are active on your site?",
+          options: [
+            { label: "Google Analytics 4 / Pixel", value: "Pixel" },
+            { label: "None / I don't know", value: "None" },
+          ],
+        },
+        // PILLAR 2: EXPERIENCE
+        {
+          id: "speed",
+          category: "Experience",
+          text: "How fast does your website load on mobile?",
+          options: [
+            { label: "Instantly (Under 2s)", value: "Instant" },
+            { label: "Decent (2-4s)", value: "Decent" },
+            { label: "Painfully Slow", value: "Painfully Slow" },
+            { label: "No Website", value: "No Site" },
+          ],
+        },
+        {
+          id: "landing_page",
+          category: "Experience",
+          text: "Where do you send ad traffic?",
+          options: [
+            { label: "Dedicated Landing Page", value: "Landing Page" },
+            { label: "Home Page", value: "Home Page" },
+            { label: "WhatsApp / DM", value: "DM" },
+          ],
+        },
+        {
+          id: "mobile",
+          category: "Experience",
+          text: "How does your site look on mobile?",
+          options: [
+            { label: "Perfectly optimized", value: "Good" },
+            { label: "Cuts off text/images", value: "Cuts off text/images" },
+          ],
+        },
+        // PILLAR 3: EFFICIENCY
+        {
+          id: "data_entry",
+          category: "Efficiency",
+          text: "How do you input leads to CRM?",
+          options: [
+            { label: "Automatically (Zapier/API)", value: "Auto" },
+            { label: "Manually copy-paste", value: "Manual" },
+            { label: "Notebook / Paper", value: "Notebook" },
+          ],
+        },
+        {
+          id: "admin_hours",
+          category: "Efficiency",
+          text: "Hours/week spent on Admin tasks?",
+          options: [
+            { label: "0-2 hours", value: 1 },
+            { label: "2-5 hours", value: 3.5 },
+            { label: "5-10 hours", value: 7.5 },
+            { label: "10-20 hours", value: 15 },
+            { label: "20+ hours", value: 25 },
+          ],
+        },
+        {
+          id: "follow_up",
+          category: "Efficiency",
+          text: "Do you have automated lead nurturing?",
+          options: [
+            { label: "Yes, fully automated", value: "Automated" },
+            { label: "Manual follow-ups", value: "Manual" },
+            { label: "No", value: "No" },
+          ],
+        },
+      ];
+
+      // --- UTILITY: Label Wrapping (Mandatory) ---
+      function splitLabel(label) {
+        if (typeof label !== "string" || label.length <= 16) return label;
+        const words = label.split(" ");
+        const lines = [];
+        let currentLine = words[0];
+        for (let i = 1; i < words.length; i++) {
+          if (currentLine.length + 1 + words[i].length <= 16) {
+            currentLine += " " + words[i];
+          } else {
+            lines.push(currentLine);
+            currentLine = words[i];
+          }
+        }
+        lines.push(currentLine);
+        return lines;
+      }
+
+      // --- UTILITY: Common Chart Options ---
+      const commonChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              title: function (tooltipItems) {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) return label.join(" ");
+                return label;
+              },
+            },
+          },
+        },
+      };
+
+      // --- APP CONTROLLER ---
+      const app = {
+        step: 0,
+        answers: {},
+
+        start: function () {
+          this.transition("hero", "quiz");
+          this.renderQuestion();
+        },
+
+        back: function () {
+          if (this.step > 0) {
+            this.step--;
+            this.renderQuestion();
+          }
+        },
+
+        transition: function (fromId, toId) {
+          document.getElementById(fromId).classList.remove("active-step");
+          document.getElementById(fromId).classList.add("hidden-step");
+
+          // Small delay for exit animation
+          setTimeout(() => {
+            document.getElementById(toId).classList.remove("hidden-step");
+            document.getElementById(toId).classList.add("active-step");
+          }, 100);
+        },
+
+        renderQuestion: function () {
+          const q = questions[this.step];
+
+          // Update Progress
+          const pct = Math.round((this.step / questions.length) * 100);
+          document.getElementById("quiz-progress-bar").style.width = pct + "%";
+          document.getElementById("quiz-progress-text").innerText = pct + "%";
+          document.getElementById("quiz-category").innerText = q.category;
+          document.getElementById("q-idx").innerText = this.step + 1;
+          document.getElementById("q-total").innerText = questions.length;
+
+          // Back Button Visibility
+          document.getElementById("btn-back").style.visibility =
+            this.step === 0 ? "hidden" : "visible";
+
+          // Render Text & Options
+          document.getElementById("question-text").innerText = q.text;
+          const container = document.getElementById("options-container");
+          container.innerHTML = "";
+
+          q.options.forEach((opt) => {
+            const btn = document.createElement("button");
+            btn.className =
+              "w-full text-left p-4 rounded-xl border border-slate-200 hover:border-brand-text hover:bg-slate-50 transition-all font-medium text-brand-text flex items-center";
+            btn.innerHTML = `<span class="mr-3 text-brand-muted">&#9675;</span> ${opt.label}`; // Unicode circle
+            btn.onclick = () => this.handleAnswer(q.id, opt.value);
+            container.appendChild(btn);
+          });
+        },
+
+        handleAnswer: function (qId, val) {
+          this.answers[qId] = val;
+          if (this.step < questions.length - 1) {
+            this.step++;
+            this.renderQuestion();
+          } else {
+            this.calculateResults();
+          }
+        },
+
+        calculateResults: function () {
+          this.transition("quiz", "processing");
+
+          // Simulate processing
+          const texts = [
+            "Analyzing Acquisition...",
+            "Checking Mobile Speed...",
+            "Calculating Payroll Burn...",
+          ];
+          let i = 0;
+          const interval = setInterval(() => {
+            if (i < texts.length) document.getElementById("processing-text").innerText = texts[i++];
+          }, 800);
+
+          setTimeout(() => {
+            clearInterval(interval);
+            const results = calculator.process(this.answers);
+            this.renderDashboard(results);
+            this.transition("processing", "dashboard");
+          }, 3000);
+        },
+
+        renderDashboard: function (results) {
+          // 1. Total Leak
+          this.animateValue("total-leak-display", 0, results.totalLeak, 2000);
+
+          // 2. Pillar Charts (Doughnuts)
+          this.renderDoughnut("chart-acquisition", results.scores.acquisition);
+          this.renderDoughnut("chart-experience", results.scores.experience);
+          this.renderDoughnut("chart-efficiency", results.scores.efficiency);
+
+          // 3. Bullets
+          this.renderBullets("bullets-acquisition", results.bullets.acquisition);
+          this.renderBullets("bullets-experience", results.bullets.experience);
+          this.renderBullets("bullets-efficiency", results.bullets.efficiency);
+
+          // 4. Trajectory Chart
+          this.renderTrajectory(results.graphData);
+
+          // 5. CTA
+          document.getElementById("cta-headline").innerText = results.cta.headline;
+          document.getElementById("cta-subtext").innerText = results.cta.subtext;
+          document.getElementById("cta-button").innerText = results.cta.button_text;
+        },
+
+        renderDoughnut: function (canvasId, score) {
+          const ctx = document.getElementById(canvasId).getContext("2d");
+
+          // Color Logic
+          let color = "#f43f5e"; // Danger
+          if (score > 40) color = "#f59e0b"; // Warning
+          if (score > 75) color = "#10b981"; // Success
+
+          new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: ["Score", "Loss"],
+              datasets: [
+                {
+                  data: [score, 100 - score],
+                  backgroundColor: [color, "#f1f5f9"],
+                  borderWidth: 0,
+                  hoverOffset: 4,
+                },
+              ],
+            },
+            options: {
+              ...commonChartOptions,
+              cutout: "75%",
+              plugins: {
+                ...commonChartOptions.plugins,
+                legend: { display: false },
+                tooltip: { enabled: false }, // Simple gauge, no tooltip needed
+              },
+            },
+            plugins: [
+              {
+                id: "textCenter",
+                beforeDraw: function (chart) {
+                  var width = chart.width,
+                    height = chart.height,
+                    ctx = chart.ctx;
+                  ctx.restore();
+                  var fontSize = (height / 114).toFixed(2);
+                  ctx.font = "bold " + fontSize + "em Inter";
+                  ctx.textBaseline = "middle";
+                  ctx.fillStyle = "#0f172a";
+                  var text = score + "%",
+                    textX = Math.round((width - ctx.measureText(text).width) / 2),
+                    textY = height / 2;
+                  ctx.fillText(text, textX, textY);
+                  ctx.save();
+                },
+              },
+            ],
+          });
+        },
+
+        renderTrajectory: function (data) {
+          const ctx = document.getElementById("chart-trajectory").getContext("2d");
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: data.labels.map((l) => splitLabel(l)), // Apply strict wrapping
+              datasets: [
+                {
+                  label: "Current Path",
+                  data: data.current_path,
+                  borderColor: "#94a3b8",
+                  borderDash: [5, 5],
+                  borderWidth: 2,
+                  pointRadius: 0,
+                  tension: 0.4,
+                },
+                {
+                  label: "With Bizgrowww",
+                  data: data.optimized_path,
+                  borderColor: "#10b981",
+                  backgroundColor: "rgba(16, 185, 129, 0.1)",
+                  borderWidth: 3,
+                  fill: true,
+                  tension: 0.4,
+                },
+              ],
+            },
+            options: {
+              ...commonChartOptions,
+              plugins: {
+                ...commonChartOptions.plugins,
+                legend: { position: "top", align: "end" },
+              },
+              scales: {
+                y: {
+                  grid: { color: "#f1f5f9" },
+                  ticks: {
+                    callback: function (value) {
+                      return "₹" + (value / 100000).toFixed(1) + "L";
+                    },
+                  },
+                },
+                x: { grid: { display: false } },
+              },
+            },
+          });
+        },
+
+        renderBullets: function (id, items) {
+          const ul = document.getElementById(id);
+          ul.innerHTML = items
+            .map(
+              (t) =>
+                `<li class="flex items-start"><span class="text-brand-danger mr-2">&#10006;</span> ${t}</li>`,
+            )
+            .join("");
+        },
+
+        animateValue: function (id, start, end, duration) {
+          const obj = document.getElementById(id);
+          let startTimestamp = null;
+          const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const val = Math.floor(progress * (end - start) + start);
+            obj.innerHTML = "₹" + new Intl.NumberFormat("en-IN").format(val);
+            if (progress < 1) {
+              window.requestAnimationFrame(step);
+            }
+          };
+          window.requestAnimationFrame(step);
+        },
+      };
+
+      // --- CALCULATOR LOGIC (Backend in Browser) ---
+      const calculator = {
+        process: function (ans) {
+          // 1. Anchors
+          const R = ans.revenue;
+          const V = ans.deal_value;
+          const L = ans.leads;
+          const H = ans.admin_hours;
+
+          // 2. Acquisition Logic
+          let m_pen = 0;
+          let m_trig = [];
+          if (ans.retargeting !== "Yes") {
+            m_pen += 0.4;
+            m_trig.push("NO_RETARGETING");
+          }
+          if (ans.tracking === "None") {
+            m_pen += 0.2;
+            m_trig.push("NO_TRACKING");
+          }
+          if (ans.source === "Inconsistent" || ans.source === "Word of Mouth") {
+            m_pen += 0.15;
+            m_trig.push("LUCK");
+          }
+          m_pen = Math.min(m_pen, 0.75);
+          const leak_acq = L * 12 * V * m_pen;
+          const score_acq = Math.round(100 - m_pen * 100);
+
+          // 3. Experience Logic
+          let e_pen = 0;
+          let e_trig = [];
+          if (ans.speed === "Painfully Slow") {
+            e_pen += 0.35;
+            e_trig.push("SLOW");
+          }
+          if (ans.landing_page === "Home Page") {
+            e_pen += 0.2;
+            e_trig.push("HOMEPAGE");
+          }
+          if (ans.mobile === "Cuts off text/images") {
+            e_pen += 0.25;
+            e_trig.push("MOBILE");
+          }
+          e_pen = Math.min(e_pen, 0.6);
+          const leak_exp = R * e_pen;
+          const score_exp = Math.round(100 - e_pen * 100);
+
+          // 4. Efficiency Logic
+          let f_pen = 0;
+          let f_trig = [];
+          if (ans.data_entry !== "Auto") {
+            f_pen += 0.3;
+            f_trig.push("MANUAL");
+          }
+          if (H > 10) {
+            f_pen += 0.2;
+            f_trig.push("BURN");
+          }
+          if (ans.follow_up !== "Automated") {
+            f_pen += 0.25;
+            f_trig.push("FOLLOWUP");
+          }
+          const score_eff = Math.round(100 - f_pen * 100);
+
+          // Hard Cost + Soft Cost
+          const hard_cost = H * 52 * 500;
+          let soft_cost = 0;
+          if (ans.follow_up !== "Automated") soft_cost = L * 12 * V * 0.2;
+          const leak_eff = hard_cost + soft_cost;
+
+          // 5. Total
+          let total = leak_acq + leak_exp + leak_eff;
+          if (R > 10000000 && total > R * 0.8) total = R * 0.8; // Cap
+          if (total < 480000) total = 480000; // Floor
+
+          return {
+            totalLeak: total,
+            scores: { acquisition: score_acq, experience: score_exp, efficiency: score_eff },
+            bullets: this.getBullets(m_trig, e_trig, f_trig, H),
+            graphData: this.getGraph(R, total),
+            cta: this.getCTA(score_acq, score_exp, score_eff, H),
+          };
+        },
+
+        getBullets: function (m, e, f, H) {
+          // Simple rule-based generator
+          const gen = (triggers, type) => {
+            let b = [];
+            if (type === "m") {
+              if (triggers.includes("NO_RETARGETING"))
+                b.push("Paying for traffic that leaves immediately (96% loss).");
+              if (triggers.includes("NO_TRACKING"))
+                b.push("Flying blind: No pixel data to optimize ad spend.");
+              if (triggers.includes("LUCK"))
+                b.push("Revenue is unpredictable due to reliance on referrals.");
+              if (b.length === 0) b.push("Marketing is decent but lacks automation scale.");
+            }
+            if (type === "e") {
+              if (triggers.includes("SLOW"))
+                b.push("Slow load speeds are killing your Google Rank.");
+              if (triggers.includes("HOMEPAGE"))
+                b.push("Home Page traffic converts 80% less than Landing Pages.");
+              if (triggers.includes("MOBILE"))
+                b.push("Mobile visitors are abandoning due to broken layout.");
+              if (b.length === 0) b.push("UX is functional but conversion rate could be doubled.");
+            }
+            if (type === "f") {
+              if (triggers.includes("MANUAL"))
+                b.push("Manual data entry causes human error and delay.");
+              if (triggers.includes("BURN"))
+                b.push(`Wasting ~${H * 52} hours/year on low-value admin tasks.`);
+              if (triggers.includes("FOLLOWUP"))
+                b.push("Leads are going cold due to lack of instant follow-up.");
+              if (b.length === 0) b.push("Operations are stable but preventing rapid scaling.");
+            }
+            return b.slice(0, 3);
+          };
+          return { acquisition: gen(m, "m"), experience: gen(e, "e"), efficiency: gen(f, "f") };
+        },
+
+        getGraph: function (R, leak) {
+          let curr = [],
+            opt = [],
+            v1 = R,
+            v2 = R + leak;
+          for (let i = 0; i < 5; i++) {
+            curr.push(Math.round(v1));
+            v1 *= 1.05;
+            opt.push(Math.round(v2));
+            v2 *= 1.25;
+          }
+          return {
+            labels: ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"],
+            current_path: curr,
+            optimized_path: opt,
+          };
+        },
+
+        getCTA: function (s1, s2, s3, H) {
+          if (s3 <= s1 && s3 <= s2)
+            return {
+              headline: "Stop Burning Cash",
+              subtext: `Automate your ${H} hours of admin/week.`,
+              button_text: "Fix Operations",
+            };
+          if (s1 <= s2)
+            return {
+              headline: "Build A Lead Engine",
+              subtext: "Stop relying on luck. Get consistent leads.",
+              button_text: "Fix Marketing",
+            };
+          return {
+            headline: "Fix Digital Storefront",
+            subtext: "Stop losing traffic at the door.",
+            button_text: "Fix Website",
+          };
+        },
+      };
+    </script>
+  </body>
+</html>
