@@ -1,0 +1,1184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bizgrowww | Profit Leak Diagnostic Engine</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Chosen Palette: Modern Professional (Warm Neutral) -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "sans-serif"] },
+            colors: {
+              brand: {
+                bg: "#f8fafc",
+                surface: "#ffffff",
+                text: "#0f172a",
+                muted: "#64748b",
+                primary: "#059669", // Emerald
+                danger: "#e11d48", // Rose
+                warning: "#f59e0b", // Amber
+              },
+            },
+            boxShadow: {
+              soft: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+              card: "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      body {
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      /* Chart Container Styling */
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        height: 300px;
+        margin: 0 auto;
+      }
+      @media (min-width: 768px) {
+        .chart-container {
+          height: 350px;
+        }
+      }
+      .doughnut-container {
+        position: relative;
+        width: 100%;
+        max-width: 220px;
+        height: 220px;
+        margin: 0 auto;
+      }
+
+      /* Transitions */
+      .step-transition {
+        transition:
+          opacity 0.4s ease-in-out,
+          transform 0.4s ease-in-out;
+      }
+      .hidden-step {
+        display: none !important;
+      }
+      .active-step {
+        display: block;
+        animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Form Inputs */
+      .input-field {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        outline: none;
+        transition: all 0.2s;
+        font-size: 1rem;
+        color: #0f172a;
+      }
+      .input-field:focus {
+        border-color: #059669;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+      }
+      .input-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.5rem;
+      }
+    </style>
+  </head>
+  <body class="antialiased min-h-screen flex flex-col font-sans">
+    <!-- Navigation -->
+    <nav class="w-full bg-white/90 backdrop-blur border-b border-slate-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div
+            class="w-8 h-8 bg-brand-text rounded flex items-center justify-center text-white font-bold text-lg"
+          >
+            B
+          </div>
+          <div class="font-bold text-xl tracking-tight text-brand-text">
+            bizgrowww<span class="text-brand-primary">.</span>
+          </div>
+        </div>
+        <div
+          class="text-xs font-bold uppercase tracking-wider text-brand-muted bg-slate-100 px-3 py-1 rounded-full"
+        >
+          Enterprise Diagnostic v3.0
+        </div>
+      </div>
+    </nav>
+
+    <main
+      class="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center"
+    >
+      <!-- 1. HERO SECTION -->
+      <div id="hero" class="active-step w-full max-w-4xl text-center py-12 sm:py-20">
+        <div
+          class="inline-block bg-rose-50 text-brand-danger font-bold px-4 py-2 rounded-full text-sm mb-8 border border-rose-100 shadow-sm"
+        >
+          &#9888; Warning: Silent Revenue Leakage Detected
+        </div>
+        <h1 class="text-4xl sm:text-6xl font-black text-brand-text mb-8 leading-tight">
+          Is Your Business Silently Bleeding <br />
+          <span
+            class="text-transparent bg-clip-text bg-gradient-to-r from-brand-danger to-orange-600"
+            >Lakhs in Profit Every Month?</span
+          >
+        </h1>
+        <p class="text-lg sm:text-xl text-brand-muted mb-10 max-w-2xl mx-auto leading-relaxed">
+          While you focus on daily operations, invisible gaps in your <strong>Marketing</strong>,
+          <strong>Website</strong>, and <strong>Manual Processes</strong> are likely draining 30-40%
+          of your revenue. <br /><br />
+          This <strong>Enterprise-Grade Diagnostic</strong> uses your own data to calculate the
+          exact financial size of your leak.
+        </p>
+        <button
+          onclick="app.start()"
+          class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-brand-text rounded-xl hover:bg-slate-800 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-text"
+        >
+          Start Profit Leak Audit &rarr;
+        </button>
+        <div
+          class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm text-brand-muted max-w-2xl mx-auto border-t border-slate-200 pt-8"
+        >
+          <div class="flex items-center justify-center gap-2">
+            <span class="text-brand-primary font-bold text-lg">&#10003;</span
+            ><span>100% Free Analysis</span>
+          </div>
+          <div class="flex items-center justify-center gap-2">
+            <span class="text-brand-primary font-bold text-lg">&#10003;</span
+            ><span>Instant Financial Report</span>
+          </div>
+          <div class="flex items-center justify-center gap-2">
+            <span class="text-brand-primary font-bold text-lg">&#10003;</span
+            ><span>Data-Driven Precision</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. QUIZ SECTION -->
+      <div id="quiz" class="hidden-step w-full max-w-3xl">
+        <div class="mb-8">
+          <div class="flex justify-between text-xs font-bold uppercase text-brand-muted mb-2">
+            <span id="quiz-category">Financial Baselines</span>
+            <span id="quiz-progress-text">0%</span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-2">
+            <div
+              id="quiz-progress-bar"
+              class="bg-brand-primary h-2 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(5,150,105,0.3)]"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+        <div
+          class="bg-white rounded-2xl shadow-card border border-slate-100 p-6 sm:p-10 transition-all"
+        >
+          <h2
+            id="question-text"
+            class="text-2xl sm:text-3xl font-bold text-brand-text mb-2 leading-snug"
+          >
+            Loading...
+          </h2>
+          <div
+            class="flex items-start gap-2 mb-8 bg-slate-50 p-3 rounded-lg border border-slate-100"
+          >
+            <span class="text-brand-primary font-bold text-lg">&#9432;</span>
+            <p id="question-why" class="text-sm text-brand-muted italic leading-relaxed">
+              Loading context...
+            </p>
+          </div>
+          <div id="options-container" class="space-y-3"></div>
+        </div>
+        <div class="mt-6 flex justify-between items-center px-2">
+          <button
+            id="btn-back"
+            onclick="app.back()"
+            class="text-brand-muted hover:text-brand-text font-medium px-4 py-2 invisible transition-colors flex items-center gap-2"
+          >
+            <span>&#8592;</span> Back
+          </button>
+          <div class="text-brand-muted text-xs font-semibold uppercase tracking-widest">
+            Question <span id="q-idx">1</span> / <span id="q-total">13</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. LEAD CAPTURE FORM -->
+      <div id="lead-form" class="hidden-step w-full max-w-lg">
+        <div class="bg-white rounded-2xl shadow-card border border-slate-100 p-8 sm:p-10">
+          <div class="text-center mb-8">
+            <div
+              class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 text-brand-primary mb-4"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-brand-text">Analysis Complete</h2>
+            <p class="text-brand-muted mt-2">
+              Enter your details to generate your personalized Profit Leak Report.
+            </p>
+          </div>
+          <form id="contact-form" onsubmit="app.submitLead(event)" class="space-y-4">
+            <div>
+              <label class="input-label">Full Name</label
+              ><input
+                type="text"
+                name="fullName"
+                required
+                class="input-field"
+                placeholder="e.g. Rahul Sharma"
+              />
+            </div>
+            <div>
+              <label class="input-label">Business Name</label
+              ><input
+                type="text"
+                name="businessName"
+                required
+                class="input-field"
+                placeholder="e.g. ARC Enterprises"
+              />
+            </div>
+            <div>
+              <label class="input-label">Industry</label>
+              <select name="industry" required class="input-field bg-white">
+                <option value="" disabled selected>Select Industry</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Consulting">Consulting / Services</option>
+                <option value="Real Estate">Real Estate</option>
+                <option value="SaaS / Tech">SaaS / Tech</option>
+                <option value="Retail / E-com">Retail / E-commerce</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="input-label">Mobile Number</label
+                ><input
+                  type="tel"
+                  name="mobile"
+                  required
+                  class="input-field"
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+              <div>
+                <label class="input-label">Email Address</label
+                ><input
+                  type="email"
+                  name="email"
+                  required
+                  class="input-field"
+                  placeholder="rahul@company.com"
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              class="w-full mt-4 bg-brand-primary hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all transform hover:-translate-y-1"
+            >
+              Reveal My Report &rarr;
+            </button>
+            <p class="text-xs text-center text-slate-400 mt-4">Your data is secure and private.</p>
+          </form>
+        </div>
+      </div>
+
+      <!-- 4. PROCESSING SECTION -->
+      <div id="processing" class="hidden-step w-full max-w-xl text-center py-24">
+        <div class="relative w-24 h-24 mx-auto mb-8">
+          <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+          <div
+            class="absolute inset-0 border-4 border-brand-primary rounded-full border-t-transparent animate-spin"
+          ></div>
+          <div
+            class="absolute inset-0 flex items-center justify-center font-bold text-brand-primary text-xl"
+          >
+            %
+          </div>
+        </div>
+        <h2 class="text-2xl font-bold text-brand-text mb-4">Finalizing Audit...</h2>
+        <p id="processing-text" class="text-brand-muted animate-pulse">
+          Running Forensic Analysis...
+        </p>
+      </div>
+
+      <!-- 5. RESULTS DASHBOARD -->
+      <div id="dashboard" class="hidden-step w-full space-y-12 pb-20">
+        <!-- Introduction -->
+        <div class="text-center max-w-3xl mx-auto">
+          <div
+            id="phase-badge"
+            class="inline-block bg-slate-100 text-brand-muted font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider mb-4"
+          >
+            Phase: Analyzing...
+          </div>
+          <h2 class="text-3xl font-bold text-brand-text mb-4">
+            Profit Leak Analysis for
+            <span id="res-business-name" class="text-brand-primary">Your Business</span>
+          </h2>
+          <p id="executive-summary" class="text-brand-muted text-lg">
+            Generating executive summary...
+          </p>
+        </div>
+
+        <!-- A. HEADLINE METRIC -->
+        <div
+          class="bg-white rounded-3xl shadow-card border border-rose-100 p-8 sm:p-12 text-center relative overflow-hidden transform hover:scale-[1.01] transition-transform duration-500"
+        >
+          <div
+            class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-danger to-orange-500"
+          ></div>
+          <h3 class="text-sm font-bold uppercase tracking-widest text-brand-danger mb-4">
+            Estimated Annual Profit Leak
+          </h3>
+          <div class="flex justify-center items-baseline gap-1">
+            <span
+              id="total-leak-display"
+              class="text-5xl sm:text-8xl font-black text-brand-text tracking-tight"
+              >₹0</span
+            >
+          </div>
+          <div class="mt-6 flex flex-col items-center">
+            <div
+              id="overall-score-badge"
+              class="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm mb-2"
+            >
+              <span>Overall Health: 0/100</span>
+            </div>
+            <p id="score-explanation" class="text-brand-muted max-w-2xl mx-auto text-sm">
+              Calculating impact...
+            </p>
+          </div>
+        </div>
+
+        <!-- B. PILLAR ANALYSIS -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Acquisition -->
+          <div class="bg-white rounded-2xl shadow-soft border border-slate-100 p-6 flex flex-col">
+            <div class="text-center mb-6">
+              <h3 class="text-xl font-bold text-brand-text" id="acq-title">Acquisition Engine</h3>
+              <p class="text-xs text-brand-muted uppercase font-bold tracking-wider mt-1">
+                Marketing Efficiency
+              </p>
+            </div>
+            <div class="doughnut-container mb-8"><canvas id="chart-acquisition"></canvas></div>
+            <div class="mt-auto bg-slate-50 rounded-xl p-5 border border-slate-100">
+              <div class="font-bold text-sm text-brand-text mb-3" id="acq-msg">Analyzing...</div>
+              <div class="h-px bg-slate-200 w-full mb-3"></div>
+              <ul id="bullets-acquisition" class="text-sm text-slate-700 space-y-3"></ul>
+            </div>
+          </div>
+          <!-- Experience -->
+          <div class="bg-white rounded-2xl shadow-soft border border-slate-100 p-6 flex flex-col">
+            <div class="text-center mb-6">
+              <h3 class="text-xl font-bold text-brand-text" id="exp-title">Digital Experience</h3>
+              <p class="text-xs text-brand-muted uppercase font-bold tracking-wider mt-1">
+                Web Conversion
+              </p>
+            </div>
+            <div class="doughnut-container mb-8"><canvas id="chart-experience"></canvas></div>
+            <div class="mt-auto bg-slate-50 rounded-xl p-5 border border-slate-100">
+              <div class="font-bold text-sm text-brand-text mb-3" id="exp-msg">Analyzing...</div>
+              <div class="h-px bg-slate-200 w-full mb-3"></div>
+              <ul id="bullets-experience" class="text-sm text-slate-700 space-y-3"></ul>
+            </div>
+          </div>
+          <!-- Efficiency -->
+          <div class="bg-white rounded-2xl shadow-soft border border-slate-100 p-6 flex flex-col">
+            <div class="text-center mb-6">
+              <h3 class="text-xl font-bold text-brand-text" id="eff-title">
+                Operational Efficiency
+              </h3>
+              <p class="text-xs text-brand-muted uppercase font-bold tracking-wider mt-1">
+                Payroll Optimization
+              </p>
+            </div>
+            <div class="doughnut-container mb-8"><canvas id="chart-efficiency"></canvas></div>
+            <div class="mt-auto bg-slate-50 rounded-xl p-5 border border-slate-100">
+              <div class="font-bold text-sm text-brand-text mb-3" id="eff-msg">Analyzing...</div>
+              <div class="h-px bg-slate-200 w-full mb-3"></div>
+              <ul id="bullets-efficiency" class="text-sm text-slate-700 space-y-3"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- C. TRAJECTORY GRAPH -->
+        <div class="bg-white rounded-2xl shadow-card border border-slate-100 p-6 sm:p-10">
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4"
+          >
+            <div>
+              <h3 class="text-2xl font-bold text-brand-text">The Cost of Inaction (5-Year View)</h3>
+              <p class="text-brand-muted mt-2 max-w-xl">
+                The gap between your current trajectory (Grey) and an optimized, automated business
+                (Green) compounds over time.
+              </p>
+            </div>
+            <div class="flex gap-4 text-xs font-bold uppercase">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-slate-400"></span> Status Quo
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-brand-primary"></span> Optimized
+              </div>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chart-trajectory"></canvas></div>
+        </div>
+
+        <!-- D. STICKY CTA -->
+        <div
+          class="fixed bottom-0 left-0 w-full px-4 pb-4 pt-4 z-40 bg-white/80 backdrop-blur border-t border-slate-200"
+        >
+          <div
+            class="max-w-5xl mx-auto bg-brand-text text-white rounded-xl shadow-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4"
+          >
+            <div class="text-center sm:text-left">
+              <h3 id="cta-headline" class="font-bold text-lg">Stop The Leak Today</h3>
+              <p id="cta-subtext" class="text-slate-400 text-sm">We have a plan to fix this.</p>
+            </div>
+            <button
+              class="bg-brand-primary hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-emerald-500/30 transition-all transform hover:-translate-y-0.5 w-full sm:w-auto whitespace-nowrap"
+            >
+              <span id="cta-button">Book Strategy Call</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // --- CONSTANTS & QUESTIONS ---
+      const questions = [
+        // BASELINES
+        {
+          id: "revenue",
+          category: "Financial Baselines",
+          text: "To calibrate your profit leak accurately, what was your approximate annual turnover last year?",
+          why: 'We need a baseline number to apply "percentage leak" penalties to.',
+          options: [
+            { label: "Under ₹1 Crore", value: 5000000 },
+            { label: "₹1 Cr – ₹3 Crores", value: 20000000 },
+            { label: "₹3 Cr – ₹10 Crores", value: 65000000 },
+            { label: "₹10 Cr – ₹50 Crores", value: 300000000 },
+            { label: "₹50 Crores+", value: 600000000 },
+          ],
+        },
+        {
+          id: "deal_value",
+          category: "Financial Baselines",
+          text: "What is the average lifetime value (LTV) of a single closed deal or client?",
+          why: "This allows our AI to assign a specific currency value to every single lead your current system ignores or loses.",
+          options: [
+            { label: "Under ₹25,000", value: 15000 },
+            { label: "₹25,000 – ₹1 Lakh", value: 60000 },
+            { label: "₹1 Lakh – ₹5 Lakhs", value: 300000 },
+            { label: "₹5 Lakhs – ₹20 Lakhs", value: 1200000 },
+            { label: "₹20 Lakhs+", value: 2500000 },
+          ],
+        },
+        {
+          id: "leads",
+          category: "Financial Baselines",
+          text: "Roughly how many new inquiries/leads does your business receive per month?",
+          why: "Volume matters. A small leak in a high-volume business is a massive financial disaster.",
+          options: [
+            { label: "Less than 30", value: 15 },
+            { label: "30 – 100", value: 65 },
+            { label: "100 – 300", value: 200 },
+            { label: "300 – 1000", value: 650 },
+            { label: "1000+", value: 1200 },
+          ],
+        },
+        {
+          id: "team_size",
+          category: "Financial Baselines",
+          text: "Including yourself, how large is your core team?",
+          why: 'Larger teams often suffer from "Administrative Bloat." We check if your payroll is being optimized effectively.',
+          options: [
+            { label: "Just me / Solopreneur", value: 1 },
+            { label: "2 - 10 People", value: 5 },
+            { label: "11 - 50 People", value: 25 },
+            { label: "50+ People", value: 60 },
+          ],
+        },
+        // ACQUISITION
+        {
+          id: "source",
+          category: "Acquisition Audit",
+          text: "How do you currently generate the majority of your new business?",
+          why: 'Reliance on "Word of Mouth" is unpredictable. Scalable businesses rely on systems, not luck.',
+          options: [
+            { label: "Word of Mouth / Referrals", value: "Referrals" },
+            { label: "Paid Ads (Google/FB)", value: "Ads" },
+            { label: "Cold Outreach", value: "Outreach" },
+            { label: "Organic Search / Content", value: "Organic" },
+            { label: "No consistent source", value: "None" },
+          ],
+        },
+        {
+          id: "retargeting",
+          category: "Acquisition Audit",
+          text: 'Are you running "Retargeting Systems" to capture visitors who leave your site without buying?',
+          why: "96% of visitors leave your site without inquiring. Without retargeting, you are essentially funding your competitors' traffic.",
+          options: [
+            { label: "Yes, we track and retarget", value: "Yes" },
+            { label: "No, rely on first visit", value: "No" },
+            { label: "Not sure what retargeting is", value: "Unsure" },
+          ],
+        },
+        {
+          id: "tracking",
+          category: "Acquisition Audit",
+          text: "Do you have a real-time dashboard that tracks your Cost Per Lead (CPL) and ROI?",
+          why: 'You cannot improve what you do not measure. "Flying blind" is the fastest way to burn marketing capital.',
+          options: [
+            { label: "Yes, track everything", value: "Yes" },
+            { label: "Rough idea, no dashboard", value: "Rough" },
+            { label: "No, don't track accurately", value: "No" },
+          ],
+        },
+        // EXPERIENCE
+        {
+          id: "speed",
+          category: "Experience Audit",
+          text: 'Is your website optimized for high conversion (Fast loading, "Self-Booking", Instant Inquiry)?',
+          why: 'Modern B2B buyers expect speed. A website that loads slowly or forces a user to "wait" causes a 40%+ drop in leads.',
+          options: [
+            { label: "Yes, loads instantly + automated", value: "Fast" },
+            { label: "It works, but basic", value: "Basic" },
+            { label: "Slow or outdated", value: "Slow" },
+            { label: "No website", value: "None" },
+          ],
+        },
+        {
+          id: "landing_page",
+          category: "Experience Audit",
+          text: "When you run ads or share links, where do you direct the potential client?",
+          why: 'Sending traffic to a generic Home Page causes "Analysis Paralysis." Targeted Landing Pages convert 2x-3x higher.',
+          options: [
+            { label: "Specific Landing Page", value: "LP" },
+            { label: "Website Home Page", value: "Home" },
+            { label: "WhatsApp / DMs", value: "DM" },
+          ],
+        },
+        {
+          id: "mobile",
+          category: "Experience Audit",
+          text: "How does your digital presence perform on mobile devices?",
+          why: "Over 70% of B2B decision-makers now research on mobile. If your site breaks on a phone, you are invisible to them.",
+          options: [
+            { label: "Perfectly optimized", value: "Perfect" },
+            { label: "Works but needs zooming", value: "Issues" },
+            { label: "Haven't checked", value: "Unknown" },
+          ],
+        },
+        // EFFICIENCY
+        {
+          id: "data_entry",
+          category: "Efficiency Audit",
+          text: "How does your team currently transfer lead data into your CRM or database?",
+          why: "Highly paid staff should focus on closing deals, not copy-pasting data. Manual entry is expensive and prone to error.",
+          options: [
+            { label: "Instantly & Automatically (API)", value: "Auto" },
+            { label: "Manually copy-pasting", value: "Manual" },
+            { label: "Notebooks / Excel manually", value: "Paper" },
+          ],
+        },
+        {
+          id: "admin_hours",
+          category: "Efficiency Audit",
+          text: "Be honest: How many hours per week does your team spend on repetitive admin tasks?",
+          why: 'We use this number to calculate your "Payroll Burn Rate"—the exact amount of salary wasted on tasks a bot could do for free.',
+          options: [
+            { label: "Less than 2 hours", value: 1 },
+            { label: "2 - 5 hours", value: 3.5 },
+            { label: "5 - 10 hours", value: 7.5 },
+            { label: "10 - 20 hours", value: 15 },
+            { label: "20+ hours", value: 25 },
+          ],
+        },
+        {
+          id: "nurture",
+          category: "Efficiency Audit",
+          text: 'Do you have an automated "Nurture Sequence" for leads who don\'t buy immediately?',
+          why: "Statistics show 80% of sales happen between the 5th and 12th follow-up. Manual follow-up usually stops after the 2nd attempt.",
+          options: [
+            { label: "Yes, fully automated", value: "Auto" },
+            { label: "1 or 2 manual follow-ups", value: "Manual" },
+            { label: "No, we move on", value: "None" },
+          ],
+        },
+      ];
+
+      // --- CHART CONFIG ---
+      const commonChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              title: (items) => {
+                const label = items[0].chart.data.labels[items[0].dataIndex];
+                return Array.isArray(label) ? label.join(" ") : label;
+              },
+            },
+          },
+          legend: { position: "bottom" },
+        },
+      };
+
+      // --- 1. ROBUST PERSONALIZATION ENGINE (No AI) ---
+      const engine = {
+        generateReport: function (userData, calculated) {
+          const { name, business, industry, adminHours } = userData;
+          const { R, totalLeak, scores, triggers } = calculated;
+          const revenueCr = (R / 10000000).toFixed(1);
+          const avgScore = Math.round(
+            (scores.acquisition + scores.experience + scores.efficiency) / 3,
+          );
+
+          // 1. SUMMARY SECTION
+          let phaseTitle = "Phase: Growth Plateau";
+          if (totalLeak > R * 0.3) phaseTitle = "Phase: Critical Leakage";
+          else if (totalLeak > R * 0.15) phaseTitle = "Phase: Efficiency Gap";
+
+          let execSummary = `For a ${industry} business like ${business} generating ₹${revenueCr}Cr+, your systems show signs of ${phaseTitle.replace("Phase: ", "").toLowerCase()}. `;
+          if (scores.efficiency < 50)
+            execSummary += `You are relying too heavily on manual effort (${adminHours} hours/week), which scales costs linearly with revenue. `;
+          else if (scores.acquisition < 50)
+            execSummary +=
+              "Your lead generation is unpredictable, putting future revenue at risk. ";
+          else
+            execSummary +=
+              "While revenue is strong, unoptimized digital touchpoints are leaking margin. ";
+          execSummary += `Our forensic audit estimates ${business} is losing an annual opportunity cost of ₹${(totalLeak / 100000).toFixed(1)} Lakhs.`;
+
+          // 2. PILLAR DETAILS (Rule-Based Content)
+          const getDetails = (pillar) => {
+            let msg = "",
+              details = [];
+            if (pillar === "acquisition") {
+              msg =
+                scores.acquisition < 50
+                  ? "You are paying for traffic that leaves immediately."
+                  : "Marketing is active but lacks automated scale.";
+              if (triggers.includes("NO_RETARGETING"))
+                details.push({
+                  title: "Retargeting Vacuum",
+                  explanation: "Without pixel data, you are losing 96% of your paid traffic.",
+                  type: "negative",
+                });
+              if (triggers.includes("POOR_SOURCE"))
+                details.push({
+                  title: "Lead Source Risk",
+                  explanation: "Reliance on referrals makes revenue unpredictable.",
+                  type: "negative",
+                });
+              if (triggers.includes("NO_TRACKING"))
+                details.push({
+                  title: "Blind Spots",
+                  explanation: "Lack of granular tracking means ad spend is unoptimized.",
+                  type: "negative",
+                });
+              if (details.length === 0)
+                details.push({
+                  title: "Solid Foundation",
+                  explanation: "Acquisition channels are relatively stable.",
+                  type: "positive",
+                });
+            }
+            if (pillar === "experience") {
+              msg =
+                scores.experience < 60
+                  ? "Your digital storefront is repelling high-value clients."
+                  : "User experience is decent but conversion could be higher.";
+              if (triggers.includes("BAD_MOBILE"))
+                details.push({
+                  title: "Mobile Friction",
+                  explanation:
+                    "Mobile visitors (70% of traffic) are abandoning due to layout issues.",
+                  type: "negative",
+                });
+              if (triggers.includes("LP_ISSUE"))
+                details.push({
+                  title: "Landing Page Paralysis",
+                  explanation: "Home Page traffic converts 3x lower than dedicated funnels.",
+                  type: "negative",
+                });
+              if (triggers.includes("SLOW_SPEED"))
+                details.push({
+                  title: "Speed Penalty",
+                  explanation: "Slow load times negatively impact SEO and trust.",
+                  type: "negative",
+                });
+              if (details.length === 0)
+                details.push({
+                  title: "User Friendly",
+                  explanation: "Your website provides a good baseline experience.",
+                  type: "positive",
+                });
+            }
+            if (pillar === "efficiency") {
+              msg =
+                scores.efficiency < 50
+                  ? "You are burning payroll on robot work."
+                  : "Operations are stable but not scalable.";
+              if (triggers.includes("HIGH_ADMIN"))
+                details.push({
+                  title: "Payroll Burn",
+                  explanation: `Spending ${adminHours} hours/week on manual admin is costing valuable sales time.`,
+                  type: "negative",
+                });
+              if (triggers.includes("NO_NURTURE"))
+                details.push({
+                  title: "Lead Decay",
+                  explanation: "Manual follow-ups are too slow. Leads go cold in minutes.",
+                  type: "negative",
+                });
+              if (triggers.includes("MANUAL_DATA"))
+                details.push({
+                  title: "Data Silos",
+                  explanation: "Manual entry creates delays and human error risks.",
+                  type: "negative",
+                });
+              if (details.length === 0)
+                details.push({
+                  title: "Efficient Ops",
+                  explanation: "Your team manages admin load relatively well.",
+                  type: "positive",
+                });
+            }
+            while (details.length < 2)
+              details.push({
+                title: "Optimization Opportunity",
+                explanation: "Deeper analysis needed to find hidden leaks.",
+                type: "negative",
+              });
+            return { msg, details: details.slice(0, 2) };
+          };
+
+          const acqData = getDetails("acquisition");
+          const expData = getDetails("experience");
+          const effData = getDetails("efficiency");
+
+          // 3. CTA LOGIC
+          let ctaTitle = `Stop the ₹${(totalLeak / 100000).toFixed(1)} Lakh Bleed.`;
+          let ctaBtn = "Book Strategy Call";
+          let ctaSub = `Book a 15-min debrief to see the blueprint for ${business}.`;
+
+          if (scores.efficiency <= scores.acquisition && scores.efficiency <= scores.experience) {
+            ctaTitle += " Automate Your Ops.";
+            ctaBtn = "Fix My Operations";
+          } else if (scores.acquisition <= scores.experience) {
+            ctaTitle += " Fix Your Lead Gen.";
+            ctaBtn = "Build Lead Engine";
+          } else {
+            ctaTitle += " Optimize Your Web.";
+            ctaBtn = "Fix Digital Storefront";
+          }
+
+          // FINAL JSON STRUCTURE
+          return {
+            summary_section: { phase_title: phaseTitle, executive_summary: execSummary },
+            score_card: {
+              overall_score: avgScore,
+              score_title:
+                avgScore < 50 ? "Critical Efficiency Vulnerability" : "Moderate System Health",
+              score_explanation: `Your business operating system is functioning at ${avgScore}% efficiency against industry benchmarks.`,
+            },
+            pillar_analysis: {
+              acquisition: {
+                title: "Acquisition Engine",
+                ai_message: acqData.msg,
+                details_list: acqData.details,
+              },
+              experience: {
+                title: "Digital Experience",
+                ai_message: expData.msg,
+                details_list: expData.details,
+              },
+              efficiency: {
+                title: "Operational Efficiency",
+                ai_message: effData.msg,
+                details_list: effData.details,
+              },
+            },
+            cta_section: { persuasive_title: ctaTitle, button_text: ctaBtn, subtext: ctaSub },
+          };
+        },
+      };
+
+      // --- APP CONTROLLER ---
+      const app = {
+        step: 0,
+        answers: {},
+        calculatedResults: null,
+
+        start: function () {
+          this.transition("hero", "quiz");
+          this.renderQuestion();
+        },
+        back: function () {
+          if (this.step > 0) {
+            this.step--;
+            this.renderQuestion();
+          }
+        },
+        transition: function (from, to) {
+          document.getElementById(from).classList.remove("active-step");
+          document.getElementById(from).classList.add("hidden-step");
+          setTimeout(() => {
+            document.getElementById(to).classList.remove("hidden-step");
+            document.getElementById(to).classList.add("active-step");
+          }, 50);
+        },
+        renderQuestion: function () {
+          const q = questions[this.step];
+          const pct = Math.round((this.step / questions.length) * 100);
+          document.getElementById("quiz-category").innerText = q.category;
+          document.getElementById("quiz-progress-bar").style.width = pct + "%";
+          document.getElementById("quiz-progress-text").innerText = pct + "%";
+          document.getElementById("question-text").innerText = q.text;
+          document.getElementById("question-why").innerText = q.why;
+          document.getElementById("q-idx").innerText = this.step + 1;
+          document.getElementById("q-total").innerText = questions.length;
+          document.getElementById("btn-back").style.visibility =
+            this.step === 0 ? "hidden" : "visible";
+          const container = document.getElementById("options-container");
+          container.innerHTML = "";
+          q.options.forEach((opt) => {
+            const btn = document.createElement("button");
+            btn.className =
+              "w-full text-left p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-brand-primary hover:shadow-md transition-all font-medium text-brand-text flex items-center group";
+            btn.innerHTML = `<span class="w-5 h-5 rounded-full border-2 border-slate-300 mr-4 flex items-center justify-center group-hover:border-brand-primary"><span class="w-2.5 h-2.5 rounded-full bg-brand-primary opacity-0 group-hover:opacity-100 transition-opacity"></span></span>${opt.label}`;
+            btn.onclick = () => this.handleAnswer(q.id, opt.value);
+            container.appendChild(btn);
+          });
+        },
+        handleAnswer: function (id, val) {
+          this.answers[id] = val;
+          if (this.step < questions.length - 1) {
+            this.step++;
+            this.renderQuestion();
+          } else {
+            this.calculate();
+          }
+        },
+        calculate: function () {
+          this.calculatedResults = calculator.process(this.answers);
+          this.transition("quiz", "lead-form");
+        },
+        submitLead: function (e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const userData = {
+            name: formData.get("fullName"),
+            business: formData.get("businessName"),
+            industry: formData.get("industry"),
+            email: formData.get("email"),
+            mobile: formData.get("mobile"),
+            adminHours: this.answers.admin_hours,
+          };
+          this.transition("lead-form", "processing");
+
+          // Simulate processing delay then generate report
+          const steps = [
+            "Analyzing Marketing Efficiency...",
+            "Auditing Web Conversion...",
+            "Generating Report...",
+          ];
+          const msg = document.getElementById("processing-text");
+          let i = 0;
+          const interval = setInterval(() => {
+            if (i < steps.length) msg.innerText = steps[i++];
+          }, 800);
+
+          setTimeout(() => {
+            clearInterval(interval);
+            const reportData = engine.generateReport(userData, this.calculatedResults);
+            this.renderDashboard(userData, this.calculatedResults, reportData);
+            this.transition("processing", "dashboard");
+          }, 2500);
+        },
+        renderDashboard: function (userData, res, report) {
+          // 1. Headlines
+          document.getElementById("res-business-name").innerText = userData.business;
+          document.getElementById("phase-badge").innerText = report.summary_section.phase_title;
+          document.getElementById("executive-summary").innerText =
+            report.summary_section.executive_summary;
+
+          // 2. Scorecard
+          this.animateCounter("total-leak-display", res.totalLeak);
+          document.getElementById("overall-score-badge").innerHTML =
+            `<span>Overall Health: ${report.score_card.overall_score}/100</span>`;
+          document.getElementById("score-explanation").innerText =
+            report.score_card.score_explanation;
+
+          // 3. Pillars
+          this.renderPillar(
+            "acquisition",
+            report.pillar_analysis.acquisition,
+            res.scores.acquisition,
+          );
+          this.renderPillar("experience", report.pillar_analysis.experience, res.scores.experience);
+          this.renderPillar("efficiency", report.pillar_analysis.efficiency, res.scores.efficiency);
+
+          // 4. CTA
+          document.getElementById("cta-headline").innerText = report.cta_section.persuasive_title;
+          document.getElementById("cta-subtext").innerText = report.cta_section.subtext;
+          document.getElementById("cta-button").innerText = report.cta_section.button_text;
+
+          // 5. Trajectory Graph
+          this.renderTrajectory(res.graphData);
+        },
+        animateCounter: function (id, target) {
+          const el = document.getElementById(id);
+          const duration = 2000;
+          const start = 0;
+          let startTime = null;
+          const step = (ts) => {
+            if (!startTime) startTime = ts;
+            const progress = Math.min((ts - startTime) / duration, 1);
+            const val = Math.floor(progress * (target - start) + start);
+            el.innerText = "₹" + new Intl.NumberFormat("en-IN").format(val);
+            if (progress < 1) window.requestAnimationFrame(step);
+          };
+          window.requestAnimationFrame(step);
+        },
+        renderPillar: function (key, data, score) {
+          document.getElementById(`${key.substring(0, 3)}-title`).innerText = data.title;
+          document.getElementById(`${key.substring(0, 3)}-msg`).innerText = data.ai_message;
+
+          // Bullets
+          const ul = document.getElementById(`bullets-${key}`);
+          ul.innerHTML = data.details_list
+            .map((b) => {
+              const icon =
+                b.type === "positive"
+                  ? '<span class="text-brand-primary">✔</span>'
+                  : '<span class="text-brand-danger">✖</span>';
+              return `<li class="flex items-start gap-2 text-sm text-slate-600"><span class="font-bold text-lg leading-none mt-0.5">${icon}</span><div><span class="font-bold text-brand-text block">${b.title}</span><span>${b.explanation}</span></div></li>`;
+            })
+            .join("");
+
+          // Chart
+          const ctx = document.getElementById(`chart-${key}`).getContext("2d");
+          let color = "#e11d48";
+          if (score > 40) color = "#f59e0b";
+          if (score > 75) color = "#059669";
+          new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: ["Score", "Loss"],
+              datasets: [
+                {
+                  data: [score, 100 - score],
+                  backgroundColor: [color, "#f1f5f9"],
+                  borderWidth: 0,
+                  hoverOffset: 4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: "75%",
+              plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            },
+            plugins: [
+              {
+                id: "textCenter",
+                beforeDraw: function (chart) {
+                  const width = chart.width,
+                    height = chart.height,
+                    ctx = chart.ctx;
+                  ctx.restore();
+                  ctx.font = "bold 1.5em Inter";
+                  ctx.textBaseline = "middle";
+                  ctx.fillStyle = "#0f172a";
+                  const text = score + "%",
+                    textX = Math.round((width - ctx.measureText(text).width) / 2),
+                    textY = height / 2;
+                  ctx.fillText(text, textX, textY);
+                  ctx.save();
+                },
+              },
+            ],
+          });
+        },
+        renderTrajectory: function (data) {
+          const ctx = document.getElementById("chart-trajectory").getContext("2d");
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"],
+              datasets: [
+                {
+                  label: "Status Quo",
+                  data: data.current,
+                  borderColor: "#94a3b8",
+                  borderDash: [5, 5],
+                  borderWidth: 2,
+                  pointRadius: 0,
+                  tension: 0.4,
+                },
+                {
+                  label: "Optimized",
+                  data: data.optimized,
+                  borderColor: "#059669",
+                  backgroundColor: "rgba(5, 150, 105, 0.1)",
+                  borderWidth: 3,
+                  fill: true,
+                  tension: 0.4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: "bottom" },
+                tooltip: {
+                  callbacks: { title: (items) => items[0].chart.data.labels[items[0].dataIndex] },
+                },
+              },
+              scales: {
+                y: {
+                  grid: { color: "#f1f5f9" },
+                  ticks: { callback: (val) => "₹" + (val / 100000).toFixed(1) + "L" },
+                },
+                x: { grid: { display: false } },
+              },
+            },
+          });
+        },
+      };
+
+      // --- CALCULATOR ENGINE ---
+      const calculator = {
+        process: function (a) {
+          const R = a.revenue;
+          const V = a.deal_value;
+          const L = a.leads;
+          const H = a.admin_hours;
+          let triggers = [];
+
+          let m_pen = 0;
+          if (a.retargeting !== "Yes") {
+            m_pen += 0.4;
+            triggers.push("NO_RETARGETING");
+          }
+          if (a.tracking !== "Yes") {
+            m_pen += 0.1;
+            triggers.push("NO_TRACKING");
+          }
+          if (a.source === "Referrals" || a.source === "None") {
+            m_pen += 0.1;
+            triggers.push("POOR_SOURCE");
+          }
+          m_pen = Math.min(m_pen, 0.6);
+          const leak_acq = L * 12 * V * m_pen;
+          const score_acq = Math.round(100 - m_pen * 100);
+
+          let e_pen = 0;
+          const mp = L * 12 * V;
+          let leak_exp = 0;
+          if (a.speed === "Slow" || a.speed === "None") {
+            leak_exp += R * 0.2;
+            e_pen += 0.4;
+            triggers.push("SLOW_SPEED");
+          }
+          if (a.mobile === "Issues" || a.mobile === "Unknown") {
+            leak_exp += R * 0.1;
+            e_pen += 0.2;
+            triggers.push("BAD_MOBILE");
+          }
+          if (a.landing_page === "Home") {
+            leak_exp += mp * 0.15;
+            e_pen += 0.15;
+            triggers.push("LP_ISSUE");
+          }
+          const score_exp = Math.round(100 - e_pen * 100);
+
+          let f_pen = 0;
+          let leak_eff = H * 52 * 500;
+          if (H > 5) {
+            f_pen += 0.3;
+            triggers.push("HIGH_ADMIN");
+          }
+          if (a.nurture !== "Auto") {
+            leak_eff += mp * 0.2;
+            f_pen += 0.4;
+            triggers.push("NO_NURTURE");
+          }
+          if (a.data_entry !== "Auto") {
+            leak_eff += mp * 0.05;
+            f_pen += 0.1;
+            triggers.push("MANUAL_DATA");
+          }
+          const score_eff = Math.round(100 - f_pen * 100);
+
+          let total = leak_acq + leak_exp + leak_eff;
+          if (total > R * 0.8) total = R * 0.8;
+          if (total < 480000) total = 480000;
+
+          let c = [],
+            o = [],
+            v1 = R,
+            v2 = R + total;
+          for (let i = 0; i < 5; i++) {
+            c.push(Math.round(v1));
+            v1 *= 1.05;
+            o.push(Math.round(v2));
+            v2 *= 1.25;
+          }
+
+          return {
+            totalLeak: total,
+            scores: { acquisition: score_acq, experience: score_exp, efficiency: score_eff },
+            graphData: { current: c, optimized: o },
+            triggers: triggers,
+            R: R,
+          };
+        },
+      };
+    </script>
+  </body>
+</html>
