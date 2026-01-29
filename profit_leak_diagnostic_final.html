@@ -462,21 +462,69 @@
           <div class="chart-container"><canvas id="chart-trajectory"></canvas></div>
         </div>
 
-        <!-- D. STICKY CTA -->
+        <!-- F. SOLUTION ROADMAP (New Section) -->
         <div
-          class="fixed bottom-0 left-0 w-full px-4 pb-4 pt-4 z-40 bg-white/80 backdrop-blur border-t border-slate-200"
+          class="bg-slate-900 rounded-3xl shadow-card border border-slate-800 p-8 sm:p-12 text-white relative overflow-hidden"
+        >
+          <!-- Background glow for premium feel -->
+          <div
+            class="absolute top-0 right-0 w-64 h-64 bg-brand-primary opacity-10 rounded-full filter blur-3xl translate-x-1/2 -translate-y-1/2"
+          ></div>
+
+          <div class="relative z-10">
+            <div class="text-center mb-10">
+              <h3 class="text-sm font-bold uppercase tracking-widest text-brand-primary mb-2">
+                Your Growth Blueprint
+              </h3>
+              <h2 class="text-3xl font-bold text-white">
+                Recommended Action Plan for
+                <span id="roadmap-business-name" class="text-brand-primary">Your Business</span>
+              </h2>
+              <p class="text-slate-400 mt-2">
+                Based on your audit, here are the top 3 priority fixes to plug your profit leaks.
+              </p>
+            </div>
+
+            <div id="roadmap-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Dynamic Cards Injected Here via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- D. STICKY CTA -->
+        <!-- G. HELPFUL CTA (Soft Sell) -->
+        <div
+          class="fixed bottom-0 left-0 w-full px-4 pb-4 pt-4 z-50 bg-white/90 backdrop-blur border-t border-slate-200 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]"
         >
           <div
-            class="max-w-5xl mx-auto bg-brand-text text-white rounded-xl shadow-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4"
+            class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4"
           >
             <div class="text-center sm:text-left">
-              <h3 id="cta-headline" class="font-bold text-lg">Stop The Leak Today</h3>
-              <p id="cta-subtext" class="text-slate-400 text-sm">We have a plan to fix this.</p>
+              <h3 class="font-bold text-lg text-brand-text">
+                Need help implementing this roadmap?
+              </h3>
+              <p class="text-brand-muted text-sm">
+                Get a free human expert review of these findings & a custom implementation guide.
+              </p>
             </div>
             <button
-              class="bg-brand-primary hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-emerald-500/30 transition-all transform hover:-translate-y-0.5 w-full sm:w-auto whitespace-nowrap"
+              onclick="window.open('https://calendly.com/YOUR_LINK', '_blank')"
+              class="bg-brand-text hover:bg-slate-800 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 w-full sm:w-auto whitespace-nowrap flex items-center justify-center gap-2"
             >
-              <span id="cta-button">Book Strategy Call</span>
+              <span>Book Implementation Deep-Dive</span>
+              <svg
+                class="w-4 h-4 text-brand-primary"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                ></path>
+              </svg>
             </button>
           </div>
         </div>
@@ -961,12 +1009,31 @@
           this.renderPillar("efficiency", report.pillar_analysis.efficiency, res.scores.efficiency);
 
           // 4. CTA
-          document.getElementById("cta-headline").innerText = report.cta_section.persuasive_title;
-          document.getElementById("cta-subtext").innerText = report.cta_section.subtext;
-          document.getElementById("cta-button").innerText = report.cta_section.button_text;
+          // document.getElementById("cta-headline").innerText = report.cta_section.persuasive_title;
+          // document.getElementById("cta-subtext").innerText = report.cta_section.subtext;
+          // document.getElementById("cta-button").innerText = report.cta_section.button_text;
 
           // 5. Trajectory Graph
           this.renderTrajectory(res.graphData);
+
+          // --- NEW: RENDER SOLUTION ROADMAP ---
+          document.getElementById("roadmap-business-name").innerText = userData.business;
+          const solutions = solutionEngine.generateRoadmap(res.triggers, userData);
+          const roadmapContainer = document.getElementById("roadmap-container");
+          roadmapContainer.innerHTML = solutions
+            .map(
+              (sol, index) => `
+    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-brand-primary transition-colors group">
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Step 0${index + 1}</span>
+            <span class="bg-brand-primary/20 text-brand-primary text-xs font-bold px-2 py-1 rounded">${sol.step}</span>
+        </div>
+        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-brand-primary transition-colors">${sol.title}</h4>
+        <p class="text-sm text-slate-400 leading-relaxed">${sol.desc}</p>
+    </div>
+`,
+            )
+            .join("");
         },
         animateCounter: function (id, target) {
           const el = document.getElementById(id);
@@ -1177,6 +1244,94 @@
             triggers: triggers,
             R: R,
           };
+        },
+      };
+
+      // --- SOLUTION ENGINE (New Component) ---
+      const solutionEngine = {
+        generateRoadmap: function (triggers, userData) {
+          const solutions = [];
+          const business = userData.business || "your business";
+
+          // MAPPING: Problem (Trigger) -> Solution (Action Item)
+          const library = {
+            NO_RETARGETING: {
+              step: "Stabilize Acquisition",
+              title: "Activate 'Digital Safety Net'",
+              desc: "Install tracking pixels immediately. Launch a basic retargeting campaign to capture the 96% of visitors who currently leave without buying.",
+            },
+            NO_TRACKING: {
+              step: "Data Intelligence",
+              title: "Implement ROI Dashboard",
+              desc: "Stop flying blind. Setup proper conversion tracking (GA4/Pixel) so you know exactly which rupee brings a return.",
+            },
+            POOR_SOURCE: {
+              step: "Predictability",
+              title: "Diversify Lead Channels",
+              desc: "Reliance on referrals is risky. Launch one paid or organic 'Always-On' channel to stabilize monthly revenue.",
+            },
+            SLOW_SPEED: {
+              step: "User Experience",
+              title: "Mobile Speed Optimization",
+              desc: "Your bounce rate is high due to speed. Compress images and minify code to bring mobile load times under 3 seconds.",
+            },
+            LP_ISSUE: {
+              step: "Conversion Rate",
+              title: "Deploy Dedicated Landing Pages",
+              desc: `Stop sending traffic to ${business}'s home page. Direct ads to a specific offer page to potentially triple conversion rates.`,
+            },
+            BAD_MOBILE: {
+              step: "Accessibility",
+              title: "Fix Mobile Responsiveness",
+              desc: "70% of B2B decisions happen on mobile. Fix the layout breaks immediately to stop repelling mobile traffic.",
+            },
+            HIGH_ADMIN: {
+              step: "Operational Velocity",
+              title: "Automate Admin Workflows",
+              desc: `Your team wastes hours on manual tasks. Use automation (Zapier/API) to save ~${userData.adminHours} hours/week instantly.`,
+            },
+            NO_NURTURE: {
+              step: "Sales Automation",
+              title: "Deploy 'Speed-to-Lead' Bot",
+              desc: "Leads go cold in minutes. Install an automated WhatsApp/SMS/Email sequence to nurture inquiries 24/7 without human delay.",
+            },
+            MANUAL_DATA: {
+              step: "Data Integrity",
+              title: "CRM Integration",
+              desc: "Eliminate copy-pasting. Connect your lead forms directly to your database to prevent data loss and human error.",
+            },
+          };
+
+          // Select top 3 highest impact solutions based on triggers present
+          // Priority Order: Efficiency > Acquisition > Experience
+          const priorityOrder = [
+            "HIGH_ADMIN",
+            "NO_RETARGETING",
+            "NO_NURTURE",
+            "LP_ISSUE",
+            "SLOW_SPEED",
+            "MANUAL_DATA",
+            "POOR_SOURCE",
+            "BAD_MOBILE",
+            "NO_TRACKING",
+          ];
+
+          priorityOrder.forEach((key) => {
+            if (triggers.includes(key) && solutions.length < 3) {
+              solutions.push(library[key]);
+            }
+          });
+
+          // Fallback if few triggers
+          if (solutions.length === 0) {
+            solutions.push({
+              step: "General Optimization",
+              title: "Full System Audit",
+              desc: "Your system requires a deeper manual look to identify specific bottlenecks.",
+            });
+          }
+
+          return solutions;
         },
       };
     </script>
