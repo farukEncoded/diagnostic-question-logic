@@ -839,7 +839,7 @@
                 explanation: "Deeper analysis needed to find hidden leaks.",
                 type: "negative",
               });
-            return { msg, details: details.slice(0, 2) };
+            return { msg, details: details.slice(0, 3) };
           };
 
           const acqData = getDetails("acquisition");
@@ -986,6 +986,9 @@
           }, 2500);
         },
         renderDashboard: function (userData, res, report) {
+          console.log("Final Report Data:", report);
+          console.log("Calculated Results:", res);
+          console.log("User Data:", userData);
           // 1. Headlines
           document.getElementById("res-business-name").innerText = userData.business;
           document.getElementById("phase-badge").innerText = report.summary_section.phase_title;
